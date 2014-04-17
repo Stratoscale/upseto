@@ -153,6 +153,28 @@ class Test(unittest.TestCase):
         result = upsetowrapper.run(case.localRecursiveProject, "checkRequirements --show")
         print result
 
+    def test_pythonNamespaceJoining(self):
+        case = self.SimpleManifest_OneProjectDependsOnTwoOthers(self)
+        os.mkdir(case.localClone1.directory() + "/namespace")
+        with open(case.localClone1.directory() + "/namespace/__init__.py", "w") as f:
+            f.write("")
+        with open(case.localClone1.directory() + "/namespace/module_a.py", "w") as f:
+            f.write("VARIABLE='value'\n")
+        os.mkdir(case.localRequiringProject.directory() + "/namespace")
+        with open(case.localRequiringProject.directory() + "/namespace/__init__.py", "w") as f:
+            f.write("import upseto.pythonnamespacejoin\n"
+                    "__path__.extend(upseto.pythonnamespacejoin.join(globals()))\n")
+        with open(case.localRequiringProject.directory() + "/namespace/module_b.py", "w") as f:
+            f.write("VARIABLE='other value'\n")
+        with open(case.localRequiringProject.directory() + "/test.py", "w") as f:
+            f.write("import upseto\n"
+                    "assert '/usr/' not in upseto.__file__\n"
+                    "import namespace.module_a\n"
+                    "import namespace.module_b\n"
+                    "assert namespace.module_a.VARIABLE == 'value'\n"
+                    "assert namespace.module_b.VARIABLE == 'other value'\n")
+        case.localRequiringProject.run('UPSETO_JOIN_PYTHON_NAMESPACES=yes python test.py')
+
 # test no project can be added file not found or not git
 # test can not remove
 # test basenames collision

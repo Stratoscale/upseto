@@ -15,8 +15,8 @@ class GitWrapper:
         self._directory = directory
         if not os.path.isdir(os.path.join(directory, ".git")):
             raise Exception(
-                "Directory '%s' does not look like a git "
-                "repository (no .git subdirectory)")
+                ("Directory '%s' does not look like a git "
+                "repository (no .git subdirectory)") % directory)
         if originURLBasename(self.originURL()) != os.path.basename(os.path.abspath(directory)):
             raise Exception(
                 "Directory '%s' must be named exactly like the "

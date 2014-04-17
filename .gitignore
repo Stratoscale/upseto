@@ -1,1 +1,4 @@
 *.pyc
+build
+dist
+upseto.egg-info

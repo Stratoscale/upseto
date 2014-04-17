@@ -34,8 +34,12 @@ def localClonesDir():
 
 
 def _run(command, cwd):
-    return subprocess.check_output(
-        command, shell=True, cwd=cwd, stderr=subprocess.STDOUT, close_fds=True)
+    try:
+        return subprocess.check_output(
+            command, shell=True, cwd=cwd, stderr=subprocess.STDOUT, close_fds=True)
+    except subprocess.CalledProcessError as e:
+        print e.output
+        raise
 
 
 class GitWrapper:

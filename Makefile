@@ -1,11 +1,16 @@
 all: test check_convention
 
+clean:
+	rm -fr build dist upseto.egg-info
+
 test:
-	PYTHONPATH=$(PWD)/py python py/upseto/tests/test.py
+	PYTHONPATH=$(PWD) python upseto/tests/test.py
 
 check_convention:
-	pep8 py --max-line-length=109
+	pep8 . --max-line-length=109
 
 install:
-	echo not implemented yet
-	false
+	-sudo pip uninstall upseto
+	python setup.py build
+	python setup.py bdist
+	sudo python setup.py install
