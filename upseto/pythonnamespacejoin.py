@@ -1,6 +1,7 @@
 import os
 from upseto import manifest
 from upseto import gitwrapper
+from upseto import traverse
 
 
 def join(moduleGlobals):
@@ -14,10 +15,11 @@ class Joiner:
     def __init__(self, invokingModulePath, invokingModuleName):
         self._lookingFor = os.path.join(*(invokingModuleName.split('.') + ['__init__.py']))
         self._projectDir, self._baseDir = self._findManifestFile(invokingModulePath)
-        self._checked = set()
+        self._traverse = traverse.Traverse(self._baseDir)
         self._found = []
         mani = manifest.Manifest.fromDir(self._projectDir)
-        self._traverse(mani)
+        for dependency in self._traverse.traverse(mani):
+            self._lookInProjectDir(dependency.projectDir)
 
     def found(self):
         return self._found
@@ -32,18 +34,6 @@ class Joiner:
             dirs.pop()
         raise Exception(
             "Upseto manifest file was not found under any parent directory of '%s'" % invokingModulePath)
-
-    def _traverse(self, mani):
-        if mani.originURL() in self._checked:
-            return
-        self._checked.add(mani.originURL())
-        for requirement in mani.requirements():
-            basename = gitwrapper.originURLBasename(requirement['originURL'])
-            projectDir = os.path.join(self._baseDir, basename)
-            self._lookInProjectDir(projectDir)
-            if manifest.Manifest.exists(projectDir):
-                submanifest = manifest.Manifest.fromDir(projectDir)
-                self._traverse(submanifest)
 
     def _lookInProjectDir(self, projectDir):
         candidate1 = os.path.join(projectDir, self._lookingFor)

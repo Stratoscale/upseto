@@ -1,6 +1,6 @@
 import urlparse
 import os
-from upseto import shell
+from upseto import run
 
 
 def originURLBasename(originURL):
@@ -12,11 +12,12 @@ def originURLBasename(originURL):
 
 class GitWrapper:
     def __init__(self, directory):
+        self._cachedOriginURL = None
         self._directory = directory
         if not os.path.isdir(os.path.join(directory, ".git")):
             raise Exception(
-                ("Directory '%s' does not look like a git "
-                "repository (no .git subdirectory)") % directory)
+                "Directory '%s' does not look like a git repository (no .git subdirectory)" %
+                directory)
         if originURLBasename(self.originURL()) != os.path.basename(os.path.abspath(directory)):
             raise Exception(
                 "Directory '%s' must be named exactly like the "
@@ -39,7 +40,7 @@ class GitWrapper:
     @classmethod
     def clone(cls, originURL, baseDirectory):
         basename = originURLBasename(originURL)
-        shell.run("git clone '%s' '%s'" % (originURL, basename), cwd=baseDirectory)
+        run.run(["git", "clone", originURL, basename], cwd=baseDirectory)
         clone = cls(os.path.join(baseDirectory, basename))
         clone.checkout('master')
         return clone
@@ -48,22 +49,27 @@ class GitWrapper:
         return self._directory
 
     def hash(self, branch='HEAD'):
-        return self._run("git rev-parse '%s'" % branch).strip()
+        return self._run(["git", "rev-parse", branch]).strip()
 
     def originURL(self):
-        url = self._run("git config --local remote.origin.url").strip()
-        parts = list(urlparse.urlparse(url))
-        netloc = parts[1]
-        if '@' in netloc:
-            netloc = netloc.split('@')[1]
-        parts[1] = netloc
-        return urlparse.urlunparse(parts)
+        if self._cachedOriginURL is None:
+            url = self._run(["git", "config", "--local", "remote.origin.url"]).strip()
+            parts = list(urlparse.urlparse(url))
+            netloc = parts[1]
+            if '@' in netloc:
+                netloc = netloc.split('@')[1]
+            parts[1] = netloc
+            self._cachedOriginURL = urlparse.urlunparse(parts)
+        return self._cachedOriginURL
 
     def fetch(self):
-        self._run("git fetch")
+        self._run(["git", "fetch"])
 
     def checkout(self, branch):
-        self._run("git checkout '%s'" % branch)
+        self._run(["git", "checkout", branch])
+
+    def run(self, args):
+        return self._run(["git"] + args)
 
     def _run(self, command):
-        return shell.run(command=command, cwd=self._directory)
+        return run.run(command=command, cwd=self._directory)

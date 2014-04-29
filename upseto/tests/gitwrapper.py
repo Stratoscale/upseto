@@ -106,3 +106,6 @@ class LocalClone(GitWrapper):
 
     def checkout(self, branch):
         self.run("git checkout " + branch)
+
+    def shortStatus(self):
+        return self.run("git status -s")

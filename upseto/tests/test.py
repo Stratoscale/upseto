@@ -151,7 +151,10 @@ class Test(unittest.TestCase):
         case = self.SimpleManifest_OneProjectDependsOnTwoOthers(self)
         case.addThirdTier()
         result = upsetowrapper.run(case.localRecursiveProject, "checkRequirements --show")
+        print "\nupseto checkRequirements --show"
         print result
+        self.assertIn('file://%s\t%s' % (case.project1.directory(), case.project1.hash('master')), result)
+        self.assertIn('file://%s\t%s' % (case.project2.directory(), case.project2.hash('master')), result)
 
     def test_pythonNamespaceJoining(self):
         case = self.SimpleManifest_OneProjectDependsOnTwoOthers(self)
@@ -174,6 +177,19 @@ class Test(unittest.TestCase):
                     "assert namespace.module_a.VARIABLE == 'value'\n"
                     "assert namespace.module_b.VARIABLE == 'other value'\n")
         case.localRequiringProject.run('UPSETO_JOIN_PYTHON_NAMESPACES=yes python test.py')
+
+    def test_recursiveGitInvocation(self):
+        case = self.SimpleManifest_OneProjectDependsOnTwoOthers(self)
+        case.addThirdTier()
+        firstCommitFile = os.path.join(case.localClone1.directory(), "firstCommitFile")
+        self.assertTrue(os.path.exists(firstCommitFile))
+        with open(firstCommitFile, "a") as f:
+            f.write("\n")
+        self.assertIn('M firstCommitFile', case.localClone1.shortStatus())
+        result = upsetowrapper.run(case.localRecursiveProject, "git status -s")
+        print "\nupseto git status -s"
+        print result
+        self.assertIn('M firstCommitFile', result)
 
 # test no project can be added file not found or not git
 # test can not remove

@@ -16,6 +16,7 @@ machine github.com
   login <your username>
   password <your password or key>
 '''
+http://stackoverflow.com/questions/5343068/is-there-a-way-to-skip-password-typing-when-using-https-github
 
 Command Line Usage:
 -------------------

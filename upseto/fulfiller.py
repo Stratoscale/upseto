@@ -1,36 +1,32 @@
 import logging
 from upseto import gitwrapper
 from upseto import avoidparadox
-from upseto import manifest
+from upseto import traverse
 
 
 class Fulfiller:
-    def __init__(self, rootManifest, basedir=".."):
+    def __init__(self, rootManifest, baseDir=".."):
         self._rootManifest = rootManifest
-        self._basedir = basedir
+        self._baseDir = baseDir
         self._avoidParadox = avoidparadox.AvoidParadox()
-        self._fulfulled = set()
+        self._traverse = traverse.Traverse(baseDir)
         self._fulfill(rootManifest)
 
     def _fulfill(self, mani):
-        if mani.originURL() in self._fulfulled:
-            return
-        self._fulfulled.add(mani.originURL())
         self._avoidParadox.process(mani)
-        for requirement in mani.requirements():
-            existance, git = self._existingOrClone(requirement['originURL'])
-            revision = self._checkoutExactHash(git, requirement['hash'])
+        for dependency in self._traverse.traverse(mani):
+            existance, git = self._existingOrClone(dependency.requirement['originURL'])
+            revision = self._checkoutExactHash(git, dependency.requirement['hash'])
+            if dependency.manifest is not None:
+                self._avoidParadox.process(dependency.manifest)
             logging.info("%s '%s' %s" % (existance, git.directory(), revision))
-            if manifest.Manifest.exists(git.directory()):
-                submanifest = manifest.Manifest.fromDir(git.directory())
-                self._fulfill(submanifest)
 
     def _existingOrClone(self, originURL):
         try:
-            git = gitwrapper.GitWrapper.existing(originURL, self._basedir)
+            git = gitwrapper.GitWrapper.existing(originURL, self._baseDir)
             return "Found", git
         except:
-            git = gitwrapper.GitWrapper.clone(originURL, self._basedir)
+            git = gitwrapper.GitWrapper.clone(originURL, self._baseDir)
             return "Cloned", git
 
     def _checkoutExactHash(self, git, hash):

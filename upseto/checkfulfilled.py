@@ -1,34 +1,30 @@
-import logging
 from upseto import gitwrapper
 from upseto import avoidparadox
-from upseto import manifest
 from upseto import graph
+from upseto import traverse
 
 
 class CheckFulfilled:
-    def __init__(self, basedir=".."):
-        self._basedir = basedir
+    def __init__(self, baseDir=".."):
+        self._baseDir = baseDir
         self._avoidParadox = avoidparadox.AvoidParadox()
-        self._checked = set()
+        self._traverse = traverse.Traverse(baseDir)
         self._graph = graph.Graph()
 
     def check(self, mani):
-        if mani.originURL() in self._checked:
-            return
-        self._checked.add(mani.originURL())
         self._avoidParadox.process(mani)
         self._graph.label(mani.originURL(), mani.originURL())
-        for requirement in mani.requirements():
-            git = gitwrapper.GitWrapper.existing(requirement['originURL'], self._basedir)
-            if git.hash() != requirement['hash']:
+        for dependency in self._traverse.traverse(mani):
+            git = gitwrapper.GitWrapper.existing(dependency.requirement['originURL'], self._baseDir)
+            if git.hash() != dependency.requirement['hash']:
                 raise Exception(
                     "project '%s' is not as hash '%s'" % (
-                        git.directory(), requirement['hash']))
-            self._graph.addArc(mani.originURL(), requirement['originURL'])
-            if manifest.Manifest.exists(git.directory()):
-                submanifest = manifest.Manifest.fromDir(git.directory())
-                self.check(submanifest)
-                self._graph.label(submanifest.originURL(), "%(originURL)s\n%(hash)s" % requirement)
+                        git.directory(), dependency.requirement['hash']))
+            self._graph.addArc(dependency.parentOriginURL, dependency.requirement['originURL'])
+            self._graph.label(
+                dependency.requirement['originURL'], "%(originURL)s\n%(hash)s" % dependency.requirement)
+            if dependency.manifest is not None:
+                self._avoidParadox.process(dependency.manifest)
 
     def savePng(self, filename):
         self._graph.savePng(filename)

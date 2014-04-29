@@ -1,5 +1,5 @@
 import tempfile
-from upseto import shell
+from upseto import run
 
 
 class Graph:
@@ -16,7 +16,7 @@ class Graph:
         dot = tempfile.NamedTemporaryFile(suffix=".dot")
         dot.write(self._dotContents())
         dot.flush()
-        shell.run("dot %s -Tpng -o %s" % (dot.name, filename))
+        run.run(["dot", dot.name, "-Tpng", "-o", filename])
 
     def addArc(self, source, dest):
         self._arcs.setdefault(source, list()).append(dest)
@@ -47,7 +47,8 @@ class Graph:
         return "\n".join(indentation * l[1] + l[0] for l in result)
 
     def _treeIterate(self, node, depth):
-        result = [(node, depth)]
+        label = self._labels.get(node, node).replace("\n", "\t")
+        result = [(label, depth)]
         for dest in self._arcs.get(node, []):
             result += self._treeIterate(dest, depth + 1)
         return result
