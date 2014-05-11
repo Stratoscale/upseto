@@ -4,6 +4,16 @@ import os
 from upseto import pythonnamespacejoin
 
 
+def fileIsUpsetoPythonNamespaceJoinInit(filename):
+    if os.path.basename(filename) != "__init__.py":
+        return False
+    with open(filename) as f:
+        condensedContents = f.read().replace(" ", "").replace("\t", "")
+    if '__path__.extend(upseto.pythonnamespacejoin.join(' not in condensedContents:
+        return False
+    return True
+
+
 class TipOffModuleFinder:
     def __init__(self):
         self._todo = []
@@ -23,21 +33,12 @@ class TipOffModuleFinder:
             path = "."
         for root, dirs, files in os.walk(path):
             for filename in files:
-                if not self._fileIsUpsetoPythonNamespaceJoinInit(root, filename):
+                fullPath = os.path.join(root, filename)
+                if not fileIsUpsetoPythonNamespaceJoinInit(fullPath):
                     continue
                 submodule = root[len(path) + len(os.path.sep):].split(os.path.sep)
                 absoluteModuleName = ".".join(relativeModule + submodule)
-                fullPath = os.path.join(root, filename)
                 joinPaths = pythonnamespacejoin.Joiner(fullPath, absoluteModuleName).found()
                 for joinPath in joinPaths:
                     modulefinder.AddPackagePath(absoluteModuleName, joinPath)
                     self._todo.append((joinPath, absoluteModuleName))
-
-    def _fileIsUpsetoPythonNamespaceJoinInit(self, root, filename):
-        if filename != "__init__.py":
-            return False
-        with open(os.path.join(root, filename)) as f:
-            condensedContents = f.read().replace(" ", "").replace("\t", "")
-        if '__path__.extend(upseto.pythonnamespacejoin.join(' not in condensedContents:
-            return False
-        return True

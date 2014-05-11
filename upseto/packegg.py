@@ -48,8 +48,11 @@ class PackEgg:
                 continue
             relpath = self._pathRelativeToPythonPath(module.__file__)
             if relpath not in zip.namelist():
-                zip.write(module.__file__, relpath)
-            deps.add(module.__file__)
+                if tipoffmodulefinder.fileIsUpsetoPythonNamespaceJoinInit(module.__file__):
+                    zip.writestr(relpath, "")
+                else:
+                    zip.write(module.__file__, relpath)
+                deps.add(module.__file__)
         if self._args.createDeps:
             deps.write(self._args.createDeps)
 

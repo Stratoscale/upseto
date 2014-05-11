@@ -5,7 +5,7 @@ import upseto.manifest
 import os
 import shutil
 import tempfile
-import subprocess
+import zipfile
 
 
 class Test(unittest.TestCase):
@@ -204,6 +204,18 @@ class Test(unittest.TestCase):
             case.localRequiringProject,
             "--joinPythonNamespaces --entryPoint=test.py --output=%s" % temp.name)
         upsetowrapper.runWhatever('/', "PYTHONPATH=%s python -m test" % temp.name)
+
+    def test_packegg_replacesInitFileWithEmptyFile(self):
+        case = self.pythonNamespacesTestcase()
+        temp = tempfile.NamedTemporaryFile(suffix=".egg")
+        upsetowrapper.packEgg(
+            case.localRequiringProject,
+            "--joinPythonNamespaces --entryPoint=test.py --output=%s" % temp.name)
+        with zipfile.ZipFile(temp.name) as z:
+            for name in z.namelist():
+                if name.endswith('__init__.py'):
+                    contents = z.read(name).strip()
+                    self.assertEqual(contents, "")
 
 # test no project can be added file not found or not git
 # test can not remove
