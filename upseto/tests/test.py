@@ -4,6 +4,8 @@ import upsetowrapper
 import upseto.manifest
 import os
 import shutil
+import tempfile
+import subprocess
 
 
 class Test(unittest.TestCase):
@@ -156,7 +158,7 @@ class Test(unittest.TestCase):
         self.assertIn('file://%s\t%s' % (case.project1.directory(), case.project1.hash('master')), result)
         self.assertIn('file://%s\t%s' % (case.project2.directory(), case.project2.hash('master')), result)
 
-    def test_pythonNamespaceJoining(self):
+    def pythonNamespacesTestcase(self):
         case = self.SimpleManifest_OneProjectDependsOnTwoOthers(self)
         os.mkdir(case.localClone1.directory() + "/namespace")
         with open(case.localClone1.directory() + "/namespace/__init__.py", "w") as f:
@@ -176,6 +178,10 @@ class Test(unittest.TestCase):
                     "import namespace.module_b\n"
                     "assert namespace.module_a.VARIABLE == 'value'\n"
                     "assert namespace.module_b.VARIABLE == 'other value'\n")
+        return case
+
+    def test_pythonNamespaceJoining(self):
+        case = self.pythonNamespacesTestcase()
         case.localRequiringProject.run('UPSETO_JOIN_PYTHON_NAMESPACES=yes python test.py')
 
     def test_recursiveGitInvocation(self):
@@ -190,6 +196,14 @@ class Test(unittest.TestCase):
         print "\nupseto git status -s"
         print result
         self.assertIn('M firstCommitFile', result)
+
+    def test_packegg(self):
+        case = self.pythonNamespacesTestcase()
+        temp = tempfile.NamedTemporaryFile(suffix=".egg")
+        upsetowrapper.packEgg(
+            case.localRequiringProject,
+            "--joinPythonNamespaces --entryPoint=test.py --output=%s" % temp.name)
+        upsetowrapper.runWhatever('/', "PYTHONPATH=%s python -m test" % temp.name)
 
 # test no project can be added file not found or not git
 # test can not remove

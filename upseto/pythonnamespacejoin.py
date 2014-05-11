@@ -1,6 +1,5 @@
 import os
 from upseto import manifest
-from upseto import gitwrapper
 from upseto import traverse
 
 
