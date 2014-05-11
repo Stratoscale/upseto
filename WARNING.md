@@ -17,9 +17,9 @@ the point is: i left "dirtyness" tracking to the developers. at any case, the
 CI will catch your booboos, but i also recommend the following: upseto has
 the command "git" to run a git command at all dependencies. so the command
 line:
-'''
+```
 upseto git status -s
-'''
+```
 will show you if any such modifications exist in any of your dependencies.
 so when you are "pushing to master" / "pullrequesting", i recommend running
 this command line just in case.
