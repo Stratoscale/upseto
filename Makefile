@@ -14,7 +14,7 @@ uninstall:
 	sudo rm /usr/bin/upseto
 
 install:
-	-sudo pip uninstall upseto
+	-yes | sudo pip uninstall upseto
 	python setup.py build
 	python setup.py bdist
 	sudo python setup.py install
