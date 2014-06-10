@@ -1,3 +1,4 @@
+import upseto
 import unittest
 import gitwrapper
 import upsetowrapper
@@ -172,7 +173,8 @@ class Test(unittest.TestCase):
         with open(case.localRequiringProject.directory() + "/namespace/module_b.py", "w") as f:
             f.write("VARIABLE='other value'\n")
         with open(case.localRequiringProject.directory() + "/test.py", "w") as f:
-            f.write("import upseto\n"
+            f.write(
+                    "import upseto\n"
                     "assert '/usr/' not in upseto.__file__\n"
                     "import namespace.module_a\n"
                     "import namespace.module_b\n"
