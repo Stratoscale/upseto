@@ -18,7 +18,7 @@ class GitWrapper:
             raise Exception(
                 "Directory '%s' does not look like a git repository (no .git subdirectory)" %
                 directory)
-        if originURLBasename(self.originURL()) != os.path.basename(os.path.abspath(directory)):
+        if self.originURLBasename() != os.path.basename(os.path.abspath(directory)):
             raise Exception(
                 "Directory '%s' must be named exactly like the "
                 "origin URL '%s' (with no '.git' extension)" % (
@@ -61,6 +61,9 @@ class GitWrapper:
             parts[1] = netloc
             self._cachedOriginURL = urlparse.urlunparse(parts)
         return self._cachedOriginURL
+
+    def originURLBasename(self):
+        return originURLBasename(self.originURL())
 
     def fetch(self):
         self._run(["git", "fetch"])
