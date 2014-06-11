@@ -62,14 +62,14 @@ class GitWrapper:
             self._cachedOriginURL = urlparse.urlunparse(parts)
         return self._cachedOriginURL
 
-    def originURLBasename(self):
-        return originURLBasename(self.originURL())
-
     def fetch(self):
         self._run(["git", "fetch"])
 
     def checkout(self, branch):
         self._run(["git", "checkout", branch])
+
+    def shortStatus(self):
+        return self._run(["git", "status", "-s"])
 
     def run(self, args):
         return self._run(["git"] + args)

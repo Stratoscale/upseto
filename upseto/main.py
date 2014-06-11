@@ -37,7 +37,16 @@ checkRequirements = subparsers.add_parser(
     help="Check that the HEAD revision of all dependencies, recursivly, "
     "matches the recursive requirements. Note that this does not "
     "check dirtyness of the working directories.")
-checkRequirements.add_argument("--show", action="store_true")
+checkRequirements.add_argument(
+    "--show", action="store_true",
+    help="show all the dependencies, recursively")
+checkRequirements.add_argument(
+    "--gitClean", action="store_true",
+    help="fail if not all dependencies are 'git status' clean")
+checkRequirements.add_argument(
+    "--unsullied", action="store_true",
+    help="fail if workspace contains other files not under "
+    "upseto recursive dependency tree")
 git = subparsers.add_parser(
     "git",
     help="Run a git command recursively on all dependencies. E.g., "
@@ -67,8 +76,10 @@ elif args.cmd == "fulfillRequirements":
     logging.info("Requirements Fulfilled")
 elif args.cmd == "checkRequirements":
     mani = manifest.Manifest.fromLocalDir()
-    check = checkfulfilled.CheckFulfilled(baseDir)
+    check = checkfulfilled.CheckFulfilled(baseDir, gitClean=args.gitClean)
     check.check(mani)
+    if args.unsullied:
+        check.unsullied()
     logging.info("Requirements Checked")
     if args.show:
         logging.info("\n%s", check.renderAsTreeText())

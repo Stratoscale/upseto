@@ -16,6 +16,9 @@ class Manifest:
     def originURL(self):
         return self._originURL
 
+    def originURLBasename(self):
+        return gitwrapper.originURLBasename(self._originURL)
+
     def requirements(self):
         return self._data['requirements']
 

@@ -10,7 +10,7 @@ Dependency = collections.namedtuple("Dependency", "requirement projectDir manife
 class Traverse:
     def __init__(self, baseDir=".."):
         self._baseDir = baseDir
-        self._visited = set()
+        self._visitedOriginURLs = set()
 
     def traverse(self, mani):
         """
@@ -19,9 +19,9 @@ class Traverse:
         the 'manifest' field might be none if this project does not
         have an upseto manifest.
         """
-        if mani.originURL() in self._visited:
+        if mani.originURL() in self._visitedOriginURLs:
             return
-        self._visited.add(mani.originURL())
+        self._visitedOriginURLs.add(mani.originURL())
         for requirement in mani.requirements():
             basename = gitwrapper.originURLBasename(requirement['originURL'])
             projectDir = os.path.join(self._baseDir, basename)

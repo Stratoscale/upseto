@@ -219,18 +219,24 @@ class Test(unittest.TestCase):
                     contents = z.read(name).strip()
                     self.assertEqual(contents, "")
 
-    def test_scripting_checkWorkspaceUnsullied(self):
+    def test_checkWorkspaceUnsullied(self):
         case = self.SimpleManifest_OneProjectDependsOnTwoOthers(self)
         case.addThirdTier()
-        with open(case.localRecursiveProject.directory() + "/test.py", "w") as f:
-            f.write(
-                "from upseto import scripting\n"
-                "scripting.checkWorkspaceUnsullied()\n")
-        case.localRecursiveProject.run('python test.py')
+        upsetowrapper.run(case.localRecursiveProject, "checkRequirements --unsullied")
         os.mkdir(os.path.join(gitwrapper.localClonesDir(), "projectoutsideofupseto"))
-        result = case.localRecursiveProject.run('python test.py || echo FAILED')
-        self.assertIn('FAILED', result)
-        self.assertIn('sullied', result.lower())
+        upsetowrapper.runShouldFail(case.localRecursiveProject, "checkRequirements --unsullied", "sullied")
+
+    def test_checkWorkspaceClean(self):
+        case = self.SimpleManifest_OneProjectDependsOnTwoOthers(self)
+        case.addThirdTier()
+        upsetowrapper.run(case.localRecursiveProject, "checkRequirements --gitClean")
+        output = upsetowrapper.run(case.localRecursiveProject, "git status -s")
+        self.assertEquals(len([l for l in output.strip().split("\n") if not l.startswith("#")]), 0)
+        with open(case.localClone1.directory() + "/notcheckedin", "w") as f:
+            f.write("i'm here to make things dirty")
+        output = upsetowrapper.run(case.localRecursiveProject, "git status -s")
+        self.assertEquals(len([l for l in output.strip().split("\n") if not l.startswith("#")]), 1)
+        upsetowrapper.runShouldFail(case.localRecursiveProject, "checkRequirements --gitClean", "clean")
 
 
 # test no project can be added file not found or not git
