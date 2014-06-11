@@ -33,12 +33,13 @@ def localClonesDir():
     return os.path.join(_tempDir, "localclone")
 
 
-def _run(command, cwd):
+def _run(command, cwd, printOutput=True):
     try:
         return subprocess.check_output(
             command, shell=True, cwd=cwd, stderr=subprocess.STDOUT, close_fds=True)
     except subprocess.CalledProcessError as e:
-        print e.output
+        if printOutput:
+            print e.output
         raise
 
 
@@ -49,8 +50,8 @@ class GitWrapper:
     def directory(self):
         return self._directory
 
-    def run(self, command):
-        return _run(command=command, cwd=self._directory)
+    def run(self, command, printOutput=True):
+        return _run(command=command, cwd=self._directory, printOutput=printOutput)
 
     def hash(self, branch='HEAD'):
         return self.run("git rev-parse " + branch).strip()

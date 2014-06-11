@@ -174,12 +174,12 @@ class Test(unittest.TestCase):
             f.write("VARIABLE='other value'\n")
         with open(case.localRequiringProject.directory() + "/test.py", "w") as f:
             f.write(
-                    "import upseto\n"
-                    "assert '/usr/' not in upseto.__file__\n"
-                    "import namespace.module_a\n"
-                    "import namespace.module_b\n"
-                    "assert namespace.module_a.VARIABLE == 'value'\n"
-                    "assert namespace.module_b.VARIABLE == 'other value'\n")
+                "import upseto\n"
+                "assert '/usr/' not in upseto.__file__\n"
+                "import namespace.module_a\n"
+                "import namespace.module_b\n"
+                "assert namespace.module_a.VARIABLE == 'value'\n"
+                "assert namespace.module_b.VARIABLE == 'other value'\n")
         return case
 
     def test_pythonNamespaceJoining(self):
@@ -218,6 +218,20 @@ class Test(unittest.TestCase):
                 if name.endswith('__init__.py'):
                     contents = z.read(name).strip()
                     self.assertEqual(contents, "")
+
+    def test_scripting_checkWorkspaceUnsullied(self):
+        case = self.SimpleManifest_OneProjectDependsOnTwoOthers(self)
+        case.addThirdTier()
+        with open(case.localRecursiveProject.directory() + "/test.py", "w") as f:
+            f.write(
+                "from upseto import scripting\n"
+                "scripting.checkWorkspaceUnsullied()\n")
+        case.localRecursiveProject.run('python test.py')
+        os.mkdir(os.path.join(gitwrapper.localClonesDir(), "projectoutsideofupseto"))
+        result = case.localRecursiveProject.run('python test.py || echo FAILED')
+        self.assertIn('FAILED', result)
+        self.assertIn('sullied', result.lower())
+
 
 # test no project can be added file not found or not git
 # test can not remove

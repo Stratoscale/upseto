@@ -4,7 +4,7 @@ from upseto import gitwrapper
 import collections
 
 
-Dependency = collections.namedtuple("Dependency", "requirement projectDir manifest parentOriginURL")
+Dependency = collections.namedtuple("Dependency", "requirement projectDir manifest parentOriginURL basename")
 
 
 class Traverse:
@@ -31,7 +31,8 @@ class Traverse:
                 requirement=requirement,
                 projectDir=projectDir,
                 manifest=submanifest,
-                parentOriginURL=mani.originURL())
+                parentOriginURL=mani.originURL(),
+                basename=basename)
             yield dependency
             # refresh manifest in case it was changed by caller (as in
             # FulfillRequirements which checks out the code)

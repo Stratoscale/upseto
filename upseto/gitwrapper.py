@@ -4,10 +4,10 @@ from upseto import run
 
 
 def originURLBasename(originURL):
-    originUrlBasename = urlparse.urlparse(originURL).path.split("/")[-1]
-    if originUrlBasename.endswith(".git"):
-        originUrlBasename = originUrlBasename[: - len(".git")]
-    return originUrlBasename
+    originURLBasename = urlparse.urlparse(originURL).path.split("/")[-1]
+    if originURLBasename.endswith(".git"):
+        originURLBasename = originURLBasename[: - len(".git")]
+    return originURLBasename
 
 
 class GitWrapper:
@@ -61,6 +61,9 @@ class GitWrapper:
             parts[1] = netloc
             self._cachedOriginURL = urlparse.urlunparse(parts)
         return self._cachedOriginURL
+
+    def originURLBasename(self):
+        return originURLBasename(self.originURL())
 
     def fetch(self):
         self._run(["git", "fetch"])
