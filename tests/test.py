@@ -238,6 +238,19 @@ class Test(unittest.TestCase):
         self.assertEquals(len([l for l in output.strip().split("\n") if not l.startswith("#")]), 1)
         upsetowrapper.runShouldFail(case.localRecursiveProject, "checkRequirements --gitClean", "clean")
 
+    def test_checkRequirementsOnNonUpsetoedProjects(self):
+        case = self.SimpleManifest_OneProjectDependsOnTwoOthers(self)
+        case.addThirdTier()
+        upsetowrapper.runShouldFail(case.localClone1, "checkRequirements", "manifest")
+        upsetowrapper.runShouldFail(case.localClone2, "checkRequirements", "manifest")
+        upsetowrapper.run(case.localRequiringProject, "checkRequirements")
+        upsetowrapper.run(case.localRecursiveProject, "checkRequirements")
+
+        upsetowrapper.run(case.localClone1, "checkRequirements --allowNoManifest")
+        upsetowrapper.run(case.localClone2, "checkRequirements --allowNoManifest")
+        upsetowrapper.run(case.localRequiringProject, "checkRequirements --allowNoManifest")
+        upsetowrapper.run(case.localRecursiveProject, "checkRequirements --allowNoManifest")
+
 
 # test no project can be added file not found or not git
 # test can not remove

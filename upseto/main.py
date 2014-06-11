@@ -47,6 +47,11 @@ checkRequirements.add_argument(
     "--unsullied", action="store_true",
     help="fail if workspace contains other files not under "
     "upseto recursive dependency tree")
+checkRequirements.add_argument(
+    "--allowNoManifest", action="store_true",
+    help="if this project does not contain an upseto.manifest file "
+    "consider as if it has an empty one. Allows checking gitClean "
+    "and unsullied uniformly in projects")
 git = subparsers.add_parser(
     "git",
     help="Run a git command recursively on all dependencies. E.g., "
@@ -75,7 +80,10 @@ elif args.cmd == "fulfillRequirements":
     ff = fulfiller.Fulfiller(mani, baseDir)
     logging.info("Requirements Fulfilled")
 elif args.cmd == "checkRequirements":
-    mani = manifest.Manifest.fromLocalDir()
+    if args.allowNoManifest:
+        mani = manifest.Manifest.fromLocalDirOrNew()
+    else:
+        mani = manifest.Manifest.fromLocalDir()
     check = checkfulfilled.CheckFulfilled(baseDir, gitClean=args.gitClean)
     check.check(mani)
     if args.unsullied:
