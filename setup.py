@@ -9,7 +9,7 @@ setup(
     name="upseto",
     version="1.0",
     author="Shlomo Matichin",
-    author_email="shlomomatichin@gmail.com",
+    author_email="shlomi@stratoscale.com",
     description=(
         "Split your projects across git repos without the disatvantages"
         " of git submodule"),
