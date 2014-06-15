@@ -238,6 +238,13 @@ class Test(unittest.TestCase):
         self.assertEquals(len([l for l in output.strip().split("\n") if not l.startswith("#")]), 1)
         upsetowrapper.runShouldFail(case.localRecursiveProject, "checkRequirements --gitClean", "clean")
 
+        os.unlink(case.localClone1.directory() + "/notcheckedin")
+        upsetowrapper.run(case.localRecursiveProject, "checkRequirements --gitClean")
+
+        with open(case.localRecursiveProject.directory() + "/notcheckedin", "w") as f:
+            f.write("i'm here to make things dirty")
+        upsetowrapper.runShouldFail(case.localRecursiveProject, "checkRequirements --gitClean", "clean")
+
     def test_checkRequirementsOnNonUpsetoedProjects(self):
         case = self.SimpleManifest_OneProjectDependsOnTwoOthers(self)
         case.addThirdTier()

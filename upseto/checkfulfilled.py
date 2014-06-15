@@ -15,6 +15,12 @@ class CheckFulfilled:
         self._graph = graph.Graph()
 
     def check(self, mani):
+        if self._gitClean:
+            git = gitwrapper.GitWrapper.existing(mani.originURL(), self._baseDir)
+            if git.shortStatus().strip() != "":
+                raise Exception(
+                    "project '%s' is not clean: git status -s returned:\n%s" % (
+                        git.directory(), git.shortStatus()))
         self._basenames.add(mani.originURLBasename())
         self._avoidParadox.process(mani)
         self._graph.label(mani.originURL(), mani.originURL())
