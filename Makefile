@@ -15,7 +15,7 @@ check_convention:
 	pep8 . --max-line-length=109
 
 uninstall:
-	sudo pip uninstall upseto
+	-yes | sudo pip uninstall upseto
 	sudo rm /usr/bin/upseto
 
 install:
