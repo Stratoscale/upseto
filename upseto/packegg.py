@@ -14,10 +14,13 @@ class PackEgg:
             tipoffmodulefinder.TipOffModuleFinder()
 
     def pack(self):
+        deps = _Deps(self._args.output)
         zip = zipfile.ZipFile(self._args.output, "w")
         for entryPoint in self._args.entryPoint:
-            self._pack(zip, entryPoint)
+            self._pack(zip, entryPoint, deps)
         zip.close()
+        if self._args.createDeps:
+            deps.write(self._args.createDeps)
 
     @classmethod
     def addArgumentParserParameters(cls, parser):
@@ -31,17 +34,19 @@ class PackEgg:
         parser.add_argument(
             "--takeSitePackage", nargs="*", default=[],
             help="take dependecy from a specific namespace in site-packages")
-        parser.add_argument("--compile.pyc", help="compile and pack .pyc files into egg")
-        parser.add_argument("--compile.pyo", help="compile and pack .pyo files into egg")
+        parser.add_argument(
+            "--compile_pyc", action="store_true", help="compile and pack .pyc files into egg")
+        parser.add_argument(
+            "--compile_pyo", action="store_true", help="compile and pack .pyo files into egg")
         parser.add_argument(
             "--joinPythonNamespaces", action="store_true",
             help="collect files from joined namespaces. Only works when "
             "invoked from an upseto project directory")
 
-    def _pack(self, zip, script):
+    def _pack(self, zip, script, deps):
         moduleFinder = modulefinder.ModuleFinder()
         moduleFinder.run_script(script)
-        deps = _Deps(self._args.output)
+        deps.add(script)
         zip.write(script, self._pathRelativeToPythonPath(script))
         for module in moduleFinder.modules.itervalues():
             if not self._packModule(module):
@@ -53,8 +58,6 @@ class PackEgg:
                 else:
                     zip.write(module.__file__, relpath)
                 deps.add(module.__file__)
-        if self._args.createDeps:
-            deps.write(self._args.createDeps)
 
     def _packModule(self, module):
         if module.__name__ == "__main__":
