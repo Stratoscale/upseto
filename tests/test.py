@@ -161,30 +161,40 @@ class Test(unittest.TestCase):
 
     def pythonNamespacesTestcase(self):
         case = self.SimpleManifest_OneProjectDependsOnTwoOthers(self)
-        os.mkdir(case.localClone1.directory() + "/namespace")
-        with open(case.localClone1.directory() + "/namespace/__init__.py", "w") as f:
+        os.makedirs(case.localClone1.directory() + "/py/namespace")
+        with open(case.localClone1.directory() + "/py/namespace/__init__.py", "w") as f:
             f.write("")
-        with open(case.localClone1.directory() + "/namespace/module_a.py", "w") as f:
+        with open(case.localClone1.directory() + "/py/namespace/module_a.py", "w") as f:
             f.write("VARIABLE='value'\n")
-        os.mkdir(case.localRequiringProject.directory() + "/namespace")
-        with open(case.localRequiringProject.directory() + "/namespace/__init__.py", "w") as f:
+        with open(case.localClone1.directory() + "/py/withoutnamespace.py", "w") as f:
+            f.write("VARIABLE='yetanothervalue'\n")
+        os.makedirs(case.localRequiringProject.directory() + "/py/namespace")
+        with open(case.localRequiringProject.directory() + "/py/namespace/__init__.py", "w") as f:
             f.write("import upseto.pythonnamespacejoin\n"
                     "__path__.extend(upseto.pythonnamespacejoin.join(globals()))\n")
-        with open(case.localRequiringProject.directory() + "/namespace/module_b.py", "w") as f:
+        with open(case.localRequiringProject.directory() + "/py/namespace/module_b.py", "w") as f:
             f.write("VARIABLE='other value'\n")
         with open(case.localRequiringProject.directory() + "/test.py", "w") as f:
             f.write(
+                "#this just verifies we are not using an installed version of upseto\n"
                 "import upseto\n"
                 "assert '/usr/' not in upseto.__file__\n"
+                "#this gets called automatically with the side upseto.pth hook, \n"
+                "#but since upseto is not yet installed, we call it directly\n"
+                "import upseto.pythonnamespacejoin; upseto.pythonnamespacejoin.extendPath()\n"
+                "#this is how it's really used\n"
                 "import namespace.module_a\n"
                 "import namespace.module_b\n"
                 "assert namespace.module_a.VARIABLE == 'value'\n"
-                "assert namespace.module_b.VARIABLE == 'other value'\n")
+                "assert namespace.module_b.VARIABLE == 'other value'\n"
+                "import withoutnamespace\n"
+                "assert withoutnamespace.VARIABLE == 'yetanothervalue'\n")
         return case
 
     def test_pythonNamespaceJoining(self):
         case = self.pythonNamespacesTestcase()
-        case.localRequiringProject.run('UPSETO_JOIN_PYTHON_NAMESPACES=yes python test.py')
+        case.localRequiringProject.run(
+            'UPSETO_JOIN_PYTHON_NAMESPACES=yes PYTHONPATH=py:$PYTHONPATH python test.py')
 
     def test_recursiveGitInvocation(self):
         case = self.SimpleManifest_OneProjectDependsOnTwoOthers(self)
@@ -204,7 +214,8 @@ class Test(unittest.TestCase):
         temp = tempfile.NamedTemporaryFile(suffix=".egg")
         upsetowrapper.packEgg(
             case.localRequiringProject,
-            "--joinPythonNamespaces --entryPoint=test.py --output=%s" % temp.name)
+            "--joinPythonNamespaces --entryPoint=test.py --output=%s" % temp.name,
+            "py:%s/py" % case.localClone1.directory())
         upsetowrapper.runWhatever('/', "PYTHONPATH=%s python -m test" % temp.name)
 
     def test_packegg_replacesInitFileWithEmptyFile(self):
@@ -212,7 +223,8 @@ class Test(unittest.TestCase):
         temp = tempfile.NamedTemporaryFile(suffix=".egg")
         upsetowrapper.packEgg(
             case.localRequiringProject,
-            "--joinPythonNamespaces --entryPoint=test.py --output=%s" % temp.name)
+            "--joinPythonNamespaces --entryPoint=test.py --output=%s" % temp.name,
+            "py:%s/py" % case.localClone1.directory())
         with zipfile.ZipFile(temp.name) as z:
             for name in z.namelist():
                 if name.endswith('__init__.py'):

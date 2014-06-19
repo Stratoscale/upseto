@@ -1,4 +1,5 @@
 import subprocess
+import os
 
 
 def run(where, arguments):
@@ -29,11 +30,12 @@ def runShouldFail(where, arguments, partOfErrorMessage):
     raise Exception("Expected upseto command '%s' to fail, but it didn't" % arguments)
 
 
-def packEgg(where, arguments):
+def packEgg(where, arguments, pythonPath):
     try:
         output = subprocess.check_output(
             "coverage run --parallel-mode -m upseto.packegg " + arguments,
-            cwd=where.directory(), shell=True, stderr=subprocess.STDOUT, close_fds=True)
+            cwd=where.directory(), shell=True, stderr=subprocess.STDOUT, close_fds=True,
+            env=dict(os.environ, PYTHONPATH=pythonPath + ":" + os.environ['PYTHONPATH']))
     except subprocess.CalledProcessError as e:
         print e.output
         raise

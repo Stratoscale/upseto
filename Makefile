@@ -16,6 +16,7 @@ check_convention:
 
 uninstall:
 	-yes | sudo pip uninstall upseto
+	-sudo rm /usr/lib/python2.7/site-packages/upseto.pth
 	sudo rm /usr/bin/upseto
 
 install:
@@ -23,5 +24,6 @@ install:
 	python setup.py build
 	python setup.py bdist
 	sudo python setup.py install
+	sudo cp upseto.pth /usr/lib/python2.7/site-packages/upseto.pth
 	sudo cp upseto.sh /usr/bin/upseto
 	sudo chmod 755 /usr/bin/upseto
