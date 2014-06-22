@@ -9,7 +9,7 @@ unittest:
 	rm -f .coverage*
 	PYTHONPATH=`pwd` COVERAGE_FILE=`pwd`/.coverage coverage run --parallel-mode --append -m unittest $(UNITTESTS)
 	coverage combine
-	coverage report --show-missing --rcfile=coverage.config --fail-under=100 --include='$(COVERED_FILES)'
+	coverage report --show-missing --rcfile=coverage.config --fail-under=86 --include='$(COVERED_FILES)'
 
 check_convention:
 	pep8 . --max-line-length=109
