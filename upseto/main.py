@@ -21,7 +21,7 @@ addRequirement = subparsers.add_parser(
     "addRequirement",
     help="Name of the directory of the project, in the parent directory."
     " The current HEAD revision will be used as the requirement hash")
-addRequirement.add_argument("project")
+addRequirement.add_argument("project", nargs="+")
 delRequirement = subparsers.add_parser(
     "delRequirement",
     help="Remove a requirement from the manifest file, by project name")
@@ -62,14 +62,16 @@ args = parser.parse_args(commandLine)
 baseDir = ".."
 if args.cmd == "addRequirement":
     mani = manifest.Manifest.fromLocalDirOrNew()
-    projectDirectory = os.path.join(baseDir, args.project)
-    git = gitwrapper.GitWrapper(projectDirectory)
-    mani.addRequirement(originURL=git.originURL(), hash=git.hash())
+    for project in args.project:
+        projectDirectory = os.path.join(baseDir, project)
+        git = gitwrapper.GitWrapper(projectDirectory)
+        mani.addRequirement(originURL=git.originURL(), hash=git.hash())
+        logging.info("Adding the origin URL '%(originURL)s' at hash '%(hash)s' as a requirement", dict(
+            originURL=git.originURL(), hash=git.hash()))
     check = checkfulfilled.CheckFulfilled(baseDir)
     check.check(mani)
     mani.save()
-    logging.info("Added the origin URL '%(originURL)s' at hash '%(hash)s' as a requirement", dict(
-        originURL=git.originURL(), hash=git.hash()))
+    logging.info("Requirements successfully added")
 elif args.cmd == "delRequirement":
     mani = manifest.Manifest.fromLocalDir()
     originURL = mani.delRequirementByBasename(args.project)
