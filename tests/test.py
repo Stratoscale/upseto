@@ -270,6 +270,31 @@ class Test(unittest.TestCase):
         upsetowrapper.run(case.localRequiringProject, "checkRequirements --allowNoManifest")
         upsetowrapper.run(case.localRecursiveProject, "checkRequirements --allowNoManifest")
 
+    def test_Bugfix_reloadManifestAfterFulfillingRequirements_AlsoTestsDiamondAddRequirement(self):
+        case = self.SimpleManifest_OneProjectDependsOnTwoOthers(self)
+        case.addThirdTier()
+
+        betweenProject = gitwrapper.GitHub("between")
+        localBetweenProject = gitwrapper.LocalClone(betweenProject)
+        upsetowrapper.run(localBetweenProject, "addRequirement requiringProject")
+        localBetweenProject.addCommitPushManifest()
+        upsetowrapper.run(case.localRecursiveProject, "addRequirement between")
+        case.localRecursiveProject.addCommitPushManifest()
+        previousHash = case.localRecursiveProject.hash()
+
+        case.localClone1.createAddCommitPush("nextgeneration")
+        upsetowrapper.run(case.localRequiringProject, "addRequirement project1")
+        case.localRequiringProject.addCommitPushManifest()
+        upsetowrapper.run(localBetweenProject, "addRequirement requiringProject")
+        localBetweenProject.addCommitPushManifest()
+        upsetowrapper.run(case.localRecursiveProject, "addRequirement requiringProject between")
+        case.localRecursiveProject.addCommitPushManifest()
+
+        case.localRecursiveProject.checkout(previousHash)
+        upsetowrapper.run(case.localRecursiveProject, "fulfillRequirements")
+        case.localRecursiveProject.checkout('master')
+        upsetowrapper.run(case.localRecursiveProject, "fulfillRequirements")
+
 
 # test no project can be added file not found or not git
 # test can not remove

@@ -2,6 +2,7 @@ import logging
 from upseto import gitwrapper
 from upseto import avoidparadox
 from upseto import traverse
+from upseto import manifest
 
 
 class Fulfiller:
@@ -17,8 +18,8 @@ class Fulfiller:
         for dependency in self._traverse.traverse(mani):
             existance, git = self._existingOrClone(dependency.requirement['originURL'])
             revision = self._checkoutExactHash(git, dependency.requirement['hash'])
-            if dependency.manifest is not None:
-                self._avoidParadox.process(dependency.manifest)
+            if manifest.Manifest.exists(git.directory()):
+                self._avoidParadox.process(manifest.Manifest.fromDir(git.directory()))
             logging.info("%s '%s' %s" % (existance, git.directory(), revision))
 
     def _existingOrClone(self, originURL):
