@@ -27,3 +27,4 @@ install:
 	sudo cp upseto.pth /usr/lib/python2.7/site-packages/upseto.pth
 	sudo cp upseto.sh /usr/bin/upseto
 	sudo chmod 755 /usr/bin/upseto
+	sudo cp bash.completion.sh /etc/bash_completion.d/upseto.sh
