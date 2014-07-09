@@ -66,7 +66,7 @@ class GitWrapper:
         return originURLBasename(self.originURL())
 
     def fetch(self):
-        self._run(["git", "fetch"])
+        self._run(["git", "fetch", "--prune"])
 
     def checkout(self, branch):
         self._run(["git", "checkout", branch])
