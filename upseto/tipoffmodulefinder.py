@@ -19,10 +19,10 @@ class TipOffModuleFinder:
         self._todo = []
         self._visited = set()
         for path in sys.path:
-            if not path.startswith("/usr"):
+            if not path.startswith("/usr/lib"):
                 self._todo.append((path, ""))
         while not len(self._todo) == 0:
-            path, relativeModule = self._todo.pop()
+            path, relativeModule = self._todo.pop(0)
             self._scan(path, [])
 
     def _scan(self, path, relativeModule):

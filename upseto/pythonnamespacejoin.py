@@ -21,9 +21,13 @@ def extendPath():
 class Joiner:
     def __init__(self, invokingModulePath, invokingModuleName):
         self._lookingFor = os.path.join(*(invokingModuleName.split('.') + ['__init__.py']))
-        self._projectDir, self._baseDir = self._findManifestFile(invokingModulePath)
-        self._traverse = traverse.Traverse(self._baseDir)
         self._found = []
+        self._projectDir = None
+        self._baseDir = None
+        self._findManifestFile(invokingModulePath)
+        if self._projectDir is None:
+            return
+        self._traverse = traverse.Traverse(self._baseDir)
         mani = manifest.Manifest.fromDir(self._projectDir)
         for dependency in self._traverse.traverse(mani):
             self._lookInProjectDir(dependency.projectDir)
@@ -37,10 +41,10 @@ class Joiner:
             asString = os.path.sep.join(dirs)
             if manifest.Manifest.exists(asString):
                 basedir = os.path.sep.join(dirs[: -1])
-                return asString, basedir
+                self._projectDir = asString
+                self._baseDir = basedir
+                return
             dirs.pop()
-        raise Exception(
-            "Upseto manifest file was not found under any parent directory of '%s'" % invokingModulePath)
 
     def _lookInProjectDir(self, projectDir):
         candidate1 = os.path.join(projectDir, self._lookingFor)
