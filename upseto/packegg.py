@@ -3,12 +3,15 @@ import modulefinder
 import zipfile
 import sys
 import os
+import glob
 from upseto import tipoffmodulefinder
 
 
 class PackEgg:
     def __init__(self, args):
         self._args = args
+        if args.entryPoint == [] and args.directory == []:
+            raise Exception("At least one of --entryPoint or --directory must be specified")
         if args.joinPythonNamespaces:
             os.environ['UPSETO_JOIN_PYTHON_NAMESPACES'] = 'yes'
             tipoffmodulefinder.TipOffModuleFinder()
@@ -16,16 +19,27 @@ class PackEgg:
     def pack(self):
         deps = _Deps(self._args.output)
         zip = zipfile.ZipFile(self._args.output, "w")
-        for entryPoint in self._args.entryPoint:
-            self._pack(zip, entryPoint, deps)
-        zip.close()
-        if self._args.createDeps:
-            deps.write(self._args.createDeps)
+        try:
+            for entryPoint in self._args.entryPoint:
+                self._pack(zip, entryPoint, deps)
+            for directory in self._args.directory:
+                for filename in glob.glob(os.path.join(directory, "*.py")):
+                    if filename.endswith("__init__.py"):
+                        continue
+                    self._pack(zip, filename, deps)
+            zip.close()
+            if self._args.createDeps:
+                deps.write(self._args.createDeps)
+        except:
+            os.unlink(self._args.output)
+            raise
 
     @classmethod
     def addArgumentParserParameters(cls, parser):
         parser.add_argument(
-            "--entryPoint", nargs='+', required=True, help="Entry points to pack")
+            "--entryPoint", nargs='*', default=[], help="Entry points to pack")
+        parser.add_argument(
+            "--directory", nargs='*', default=[], help="Directories to pack")
         parser.add_argument("--output", required=True, help="output egg file")
         parser.add_argument("--createDeps", help="create .dep file")
         parser.add_argument(
