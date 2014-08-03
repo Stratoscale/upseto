@@ -49,8 +49,5 @@ class CheckFulfilled:
                 "Workspace is sullied: following projects exist that are not "
                 "referred by upseto dependencies: %s" % sullied)
 
-    def savePng(self, filename):
-        self._graph.savePng(filename)
-
     def renderAsTreeText(self):
         return self._graph.renderAsTreeText()

@@ -6,7 +6,7 @@ from upseto import run
 def originURLBasename(originURL):
     originURLBasename = urlparse.urlparse(originURL).path.split("/")[-1]
     if originURLBasename.endswith(".git"):
-        originURLBasename = originURLBasename[: - len(".git")]
+        originURLBasename = originURLBasename[: - len(".git")]  # pragma: no cover
     return originURLBasename
 
 

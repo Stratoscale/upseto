@@ -59,6 +59,11 @@ class Test(unittest.TestCase):
         self.assertEquals(case.project2.hash('master'), case.localClone2.hash())
         self.assertEquals(case.requiringProject.hash('master'), case.localRequiringProject.hash())
 
+        upsetowrapper.run(localRequiringProject, "fulfillRequirements")  # does nothing
+        self.assertEquals(case.project1.hash('master'), case.localClone1.hash())
+        self.assertEquals(case.project2.hash('master'), case.localClone2.hash())
+        self.assertEquals(case.requiringProject.hash('master'), case.localRequiringProject.hash())
+
     def test_simpleManifest_NothingToBeDone(self):
         case = self.SimpleManifest_OneProjectDependsOnTwoOthers(self)
 

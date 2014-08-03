@@ -31,7 +31,7 @@ class Fulfiller:
             return "Cloned", git
 
     def _checkoutExactHash(self, git, hash):
-        if git.hash() != 'hash':
+        if git.hash() != hash:
             if git.hash('master') == hash:
                 git.checkout('master')
                 assert git.hash() == hash
