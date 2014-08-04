@@ -22,6 +22,15 @@ addRequirement = subparsers.add_parser(
     help="Name of the directory of the project, in the parent directory."
     " The current HEAD revision will be used as the requirement hash")
 addRequirement.add_argument("project", nargs="+")
+addRequirement.add_argument(
+    "--dirtyParadoxResolution", nargs='+', default=[],
+    help="space sparated list of project basenames (not a single argument). "
+    "If a project has two different hashes in the recursive requirement "
+    "tree, force the hash from the current manifest. Projects that add this "
+    "to their manifests become inheritnly dirty, and even project that will "
+    "use this hash later on. All these flags will be cleared on the next "
+    "'addRequirement', unless it is repeated (even when adding different "
+    "projects)")
 delRequirement = subparsers.add_parser(
     "delRequirement",
     help="Remove a requirement from the manifest file, by project name")
@@ -68,6 +77,9 @@ if args.cmd == "addRequirement":
         mani.addRequirement(originURL=git.originURL(), hash=git.hash())
         logging.info("Adding the origin URL '%(originURL)s' at hash '%(hash)s' as a requirement", dict(
             originURL=git.originURL(), hash=git.hash()))
+    mani.clearAllDirtyParadoxResolution()
+    for dirtyParadoxResolution in args.dirtyParadoxResolution:
+        mani.setDirtyParadoxResolution(dirtyParadoxResolution)
     check = checkfulfilled.CheckFulfilled(baseDir)
     check.check(mani)
     mani.save()

@@ -1,4 +1,5 @@
 from upseto import gitwrapper
+from upseto import dirtyparadoxresolution
 
 
 class AvoidParadox:
@@ -6,8 +7,10 @@ class AvoidParadox:
         self._allHashes = {}
         self._allBasenames = {}
         self._graph = {}
+        self._dirtyParadoxResolution = dirtyparadoxresolution.DirtyParadoxResolution()
 
     def process(self, manifest):
+        self._dirtyParadoxResolution.process(manifest)
         self._testBasenameConsistency(manifest.originURL())
         for requirement in manifest.requirements():
             self._testCollisionInDependencies(requirement, manifest)
@@ -16,13 +19,14 @@ class AvoidParadox:
         self._testNoCircles(manifest.originURL())
 
     def _testCollisionInDependencies(self, requirement, mani):
+        dirtyHash = self._dirtyParadoxResolution.hashOverride(requirement, mani.originURL())
         if requirement['originURL'] not in self._allHashes:
-            self._allHashes[requirement['originURL']] = dict(hash=requirement['hash'], manifest=mani)
+            self._allHashes[requirement['originURL']] = dict(hash=dirtyHash, manifest=mani)
         else:
-            if requirement['hash'] != self._allHashes[requirement['originURL']]['hash']:
+            if dirtyHash != self._allHashes[requirement['originURL']]['hash']:
                 raise Exception(
                     "Requirement hash paradox: '%s' need hash '%s' by '%s' and hash '%s' by '%s'" % (
-                        requirement['originURL'], requirement['hash'], mani.originURL(),
+                        requirement['originURL'], dirtyHash, mani.originURL(),
                         self._allHashes[requirement['originURL']]['hash'],
                         self._allHashes[requirement['originURL']]['manifest'].originURL()))
 

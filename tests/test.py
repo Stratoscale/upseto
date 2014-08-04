@@ -48,6 +48,12 @@ class Test(unittest.TestCase):
             upsetowrapper.run(self.localRecursiveProject, "addRequirement requiringProject")
             self.localRecursiveProject.addCommitPushManifest()
 
+        def addFourthTier(self):
+            self.fourthTierProject = gitwrapper.GitHub('forthTier')
+            self.localFourthTierProject = gitwrapper.LocalClone(self.fourthTierProject)
+            upsetowrapper.run(self.localFourthTierProject, "addRequirement recursiveProject")
+            self.localFourthTierProject.addCommitPushManifest()
+
     def test_simpleManifest_OneProjectDependsOnTwoOthers_RequirementsFetched(self):
         case = self.SimpleManifest_OneProjectDependsOnTwoOthers(self)
 
@@ -300,7 +306,48 @@ class Test(unittest.TestCase):
         case.localRecursiveProject.checkout('master')
         upsetowrapper.run(case.localRecursiveProject, "fulfillRequirements")
 
+    def test_resolveParadoxByLocalManifestRequirements(self):
+        case = self.SimpleManifest_OneProjectDependsOnTwoOthers(self)
+        case.addThirdTier()
 
+        case.localClone1.createAddCommitPush("anotherfile")
+        upsetowrapper.run(
+            case.localRecursiveProject, "addRequirement project1 --dirtyParadoxResolution project1")
+        upsetowrapper.run(case.localRecursiveProject, "checkRequirements")
+        self.assertTrue(os.path.exists(os.path.join(case.localClone1.directory(), "anotherfile")))
+        upsetowrapper.run(case.localRecursiveProject, "fulfillRequirements")
+        upsetowrapper.run(case.localRecursiveProject, "checkRequirements")
+        self.assertTrue(os.path.exists(os.path.join(case.localClone1.directory(), "anotherfile")))
+        upsetowrapper.runShouldFail(case.localRecursiveProject, "addRequirement project1", "hash paradox")
+        upsetowrapper.run(
+            case.localRecursiveProject, "addRequirement project1 --dirtyParadoxResolution project1")
+
+    def test_resolveParadoxByLocalManifestRequirements_CollisionBetweenResolutions(self):
+        case = self.SimpleManifest_OneProjectDependsOnTwoOthers(self)
+        case.addThirdTier()
+        case.addFourthTier()
+        upsetowrapper.run(case.localFourthTierProject, "addRequirement project1")
+
+        hashBefore = case.localClone1.hash()
+        case.localClone1.createAddCommitPush("anotherfile")
+        upsetowrapper.run(
+            case.localRecursiveProject, "addRequirement project1 --dirtyParadoxResolution project1")
+        case.localRecursiveProject.addCommitPushManifest()
+        self.assertTrue(os.path.exists(os.path.join(case.localClone1.directory(), "anotherfile")))
+
+        upsetowrapper.runShouldFail(
+            case.localFourthTierProject, "addRequirement recursiveProject", "hash paradox")
+        upsetowrapper.runShouldFail(
+            case.localFourthTierProject,
+            "addRequirement recursiveProject --dirtyParadoxResolution project1",
+            "hash")
+        case.localClone1.checkout(hashBefore)
+        upsetowrapper.run(
+            case.localFourthTierProject,
+            "addRequirement recursiveProject --dirtyParadoxResolution project1")
+
+
+# temporary deps that resolve paradoxes - for clashes in recursive deps that are not direct deps
 # test no project can be added file not found or not git
 # test can not remove
 # test basenames collision

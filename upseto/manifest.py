@@ -34,12 +34,24 @@ class Manifest:
         self._data['requirements'].append(
             dict(originURL=originURL, hash=hash))
 
-    def delRequirementByBasename(self, basename):
+    def _requirementByBasename(self, basename):
         for requirement in self._data['requirements']:
             if gitwrapper.originURLBasename(requirement['originURL']) == basename:
-                self._data['requirements'].remove(requirement)
-                return
+                return requirement
         raise Exception("Origin URL with the basename '%s' was not found in requirement list", basename)
+
+    def delRequirementByBasename(self, basename):
+        requirement = self._requirementByBasename(basename)
+        self._data['requirements'].remove(requirement)
+
+    def clearAllDirtyParadoxResolution(self):
+        for requirement in self._data['requirements']:
+            if 'dirtyParadoxResolution' in requirement:
+                del requirement['dirtyParadoxResolution']
+
+    def setDirtyParadoxResolution(self, basename):
+        requirement = self._requirementByBasename(basename)
+        requirement['dirtyParadoxResolution'] = True
 
     @classmethod
     def fromDir(cls, directory):

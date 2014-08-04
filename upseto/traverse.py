@@ -4,7 +4,8 @@ from upseto import gitwrapper
 import collections
 
 
-Dependency = collections.namedtuple("Dependency", "requirement projectDir manifest parentOriginURL basename")
+Dependency = collections.namedtuple(
+    "Dependency", "requirement projectDir manifest parentOriginURL basename")
 
 
 class Traverse:

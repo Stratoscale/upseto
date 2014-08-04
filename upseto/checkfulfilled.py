@@ -2,6 +2,7 @@ from upseto import gitwrapper
 from upseto import avoidparadox
 from upseto import graph
 from upseto import traverse
+from upseto import dirtyparadoxresolution
 import os
 
 
@@ -13,6 +14,7 @@ class CheckFulfilled:
         self._avoidParadox = avoidparadox.AvoidParadox()
         self._traverse = traverse.Traverse(baseDir)
         self._graph = graph.Graph()
+        self._dirtyParadoxResolution = dirtyparadoxresolution.DirtyParadoxResolution()
 
     def check(self, mani):
         if self._gitClean:
@@ -22,14 +24,16 @@ class CheckFulfilled:
                     "project '%s' is not clean: git status -s returned:\n%s" % (
                         git.directory(), git.shortStatus()))
         self._basenames.add(mani.originURLBasename())
+        self._dirtyParadoxResolution.process(mani)
         self._avoidParadox.process(mani)
         self._graph.label(mani.originURL(), mani.originURL())
         for dependency in self._traverse.traverse(mani):
             git = gitwrapper.GitWrapper.existing(dependency.requirement['originURL'], self._baseDir)
-            if git.hash() != dependency.requirement['hash']:
+            hashWithDirt = self._dirtyParadoxResolution.hashOverride(
+                dependency.requirement, dependency.parentOriginURL)
+            if git.hash() != hashWithDirt:
                 raise Exception(
-                    "project '%s' is not as hash '%s'" % (
-                        git.directory(), dependency.requirement['hash']))
+                    "project '%s' is not as hash '%s'" % (git.directory(), hashWithDirt))
             if self._gitClean and git.shortStatus().strip() != "":
                 raise Exception(
                     "project '%s' is not clean: git status -s returned:\n%s" % (
@@ -39,6 +43,7 @@ class CheckFulfilled:
             self._graph.label(
                 dependency.requirement['originURL'], "%(originURL)s\n%(hash)s" % dependency.requirement)
             if dependency.manifest is not None:
+                self._dirtyParadoxResolution.process(dependency.manifest)
                 self._avoidParadox.process(dependency.manifest)
 
     def unsullied(self):
