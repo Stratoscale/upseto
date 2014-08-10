@@ -67,6 +67,8 @@ class GitHub(GitWrapper):
         os.makedirs(directory)
         GitWrapper.__init__(self, directory)
         self.run("git init")
+        self.run("git config user.email 'you@example.com'")
+        self.run("git config user.name 'Your Name'")
         randomContent = ''.join(
             random.choice(string.ascii_letters) for i in xrange(10))
         self._write("firstCommitFile", randomContent)
@@ -89,6 +91,8 @@ class LocalClone(GitWrapper):
         _run("git clone file://%s" % gitHub.directory(), cwd=localClonesDir())
         GitWrapper.__init__(self, directory)
         self.run("git checkout master")
+        self.run("git config user.email 'you@example.com'")
+        self.run("git config user.name 'Your Name'")
 
     def createAddCommitPush(self, filename):
         randomContent = ''.join(
