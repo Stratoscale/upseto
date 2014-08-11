@@ -43,6 +43,9 @@ class PackEgg:
         parser.add_argument("--output", required=True, help="output egg file")
         parser.add_argument("--createDeps", help="create .dep file")
         parser.add_argument(
+            "--takeEverything", action='store_true', default=False,
+            help="take dependency files from /usr, site-packages, whereever")
+        parser.add_argument(
             "--takeSitePackages", action='store_true', default=False,
             help="take dependency files from site-packages")
         parser.add_argument(
@@ -78,6 +81,8 @@ class PackEgg:
             return False
         if module.__file__ is None:
             return False
+        if self._args.takeEverything:
+            return True
         if 'site-packages' in module.__file__:
             for sitePackage in self._args.takeSitePackage:
                 path = os.path.join('site-packages', * sitePackage.split("."))
