@@ -23,6 +23,7 @@ install:
 	-yes | sudo pip uninstall upseto
 	python setup.py build
 	python setup.py bdist
+	python setup.py bdist_egg
 	sudo python setup.py install
 	sudo cp upseto.pth /usr/lib/python2.7/site-packages/upseto.pth
 	sudo cp upseto.sh /usr/bin/upseto
