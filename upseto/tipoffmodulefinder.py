@@ -32,6 +32,11 @@ class TipOffModuleFinder:
         if path == "":
             path = "."
         for root, dirs, files in os.walk(path):
+            for directory in list(dirs):
+                fullPath = os.path.join(root, directory)
+                initFile = os.path.join(fullPath, "__init__.py")
+                if not os.path.isfile(initFile):
+                    dirs.remove(directory)
             for filename in files:
                 fullPath = os.path.join(root, filename)
                 if not fileIsUpsetoPythonNamespaceJoinInit(fullPath):
