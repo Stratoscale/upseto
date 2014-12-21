@@ -6,6 +6,13 @@ import os
 import glob
 from upseto import tipoffmodulefinder
 
+DIRECTORIES_CONTAINING_PYTHON_STANDARD_LIBRARIES = [
+    "/usr/lib/",
+    "/usr/lib64/",
+    "/usr/local/lib/",
+    "/usr/local/lib64/",
+]
+
 
 class PackEgg:
     def __init__(self, args):
@@ -89,7 +96,8 @@ class PackEgg:
                 if path in module.__file__:
                     return True
             return self._args.takeSitePackages
-        if module.__file__.startswith("/usr"):
+        if any([module.__file__.startswith(excludedDir)
+               for excludedDir in DIRECTORIES_CONTAINING_PYTHON_STANDARD_LIBRARIES]):
             return False
         return True
 
