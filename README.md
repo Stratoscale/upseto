@@ -22,7 +22,7 @@ Command Line Usage:
 -------------------
 enter the following for command line usage message
 ```
-useto --help
+upseto --help
 ```
 WARNING: please read WARNING.md
 
