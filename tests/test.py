@@ -346,6 +346,28 @@ class Test(unittest.TestCase):
             case.localFourthTierProject,
             "addRequirement recursiveProject --dirtyParadoxResolution project1")
 
+    def test_Bugfix_fulfillRequirementChecksOutWrongVersionOnDirtyParadoxResolution(self):
+        case = self.SimpleManifest_OneProjectDependsOnTwoOthers(self)
+
+        case.localClone1.createAddCommitPush("anotherfile")
+        correct = case.localClone1.hash()
+
+        case.recursiveProject = gitwrapper.GitHub("recursiveProject")
+        case.localRecursiveProject = gitwrapper.LocalClone(case.recursiveProject)
+        upsetowrapper.run(case.localRecursiveProject, "addRequirement project1")
+        upsetowrapper.run(
+            case.localRecursiveProject,
+            "addRequirement requiringProject --dirtyParadoxResolution project1")
+        case.localRecursiveProject.addCommitPushManifest()
+        with open(case.localRecursiveProject.manifestFilename()) as f:
+            manifestContents = f.read()
+        dirtyParadoxIsFirstLineOrBugIsNotRecreated = 'dirty' in manifestContents.split("\n")[1].lower()
+        self.assertTrue(dirtyParadoxIsFirstLineOrBugIsNotRecreated)
+
+        upsetowrapper.run(case.localRecursiveProject, "fulfillRequirements")
+        self.assertEquals(case.localClone1.hash(), correct)
+        upsetowrapper.run(case.localRecursiveProject, "checkRequirements")
+
 
 # temporary deps that resolve paradoxes - for clashes in recursive deps that are not direct deps
 # test no project can be added file not found or not git

@@ -23,7 +23,7 @@ class Traverse:
         if mani.originURL() in self._visitedOriginURLs:
             return
         self._visitedOriginURLs.add(mani.originURL())
-        for requirement in mani.requirements():
+        for requirement in mani.dirtyFirstRequirements():
             basename = gitwrapper.originURLBasename(requirement['originURL'])
             projectDir = os.path.join(self._baseDir, basename)
             submanifest = manifest.Manifest.fromDir(projectDir) if \

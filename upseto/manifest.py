@@ -34,6 +34,11 @@ class Manifest:
         self._data['requirements'].append(
             dict(originURL=originURL, hash=hash))
 
+    def dirtyFirstRequirements(self):
+        sortedRequirements = list(self.requirements())
+        sortedRequirements.sort(key=lambda x: 0 if x.get('dirtyParadoxResolution', False) else 1)
+        return sortedRequirements
+
     def _requirementByBasename(self, basename):
         for requirement in self._data['requirements']:
             if gitwrapper.originURLBasename(requirement['originURL']) == basename:

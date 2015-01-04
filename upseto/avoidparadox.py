@@ -12,7 +12,7 @@ class AvoidParadox:
     def process(self, manifest):
         self._dirtyParadoxResolution.process(manifest)
         self._testBasenameConsistency(manifest.originURL())
-        for requirement in manifest.requirements():
+        for requirement in manifest.dirtyFirstRequirements():
             self._testCollisionInDependencies(requirement, manifest)
             self._testBasenameConsistency(requirement['originURL'])
             self._graph.setdefault(manifest.originURL(), list()).append(requirement['originURL'])
