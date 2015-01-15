@@ -27,8 +27,7 @@ class DirtyParadoxResolution:
         if parentOriginURL != self._sameParentDirtyFirstAssertion_parentOriginUrl:
             self._sameParentDirtyFirstAssertion_parentOriginUrl = parentOriginURL
             self._sameParentDirtyFirstAssertion_nonDirtyRequirementSpotted = False
-        dirt = self._dirt[parentOriginURL]
-        if requirement['originURL'] in dirt:
+        if requirement.get('dirtyParadoxResolution', False):
             return not self._sameParentDirtyFirstAssertion_nonDirtyRequirementSpotted
         else:
             self._sameParentDirtyFirstAssertion_nonDirtyRequirementSpotted = True
