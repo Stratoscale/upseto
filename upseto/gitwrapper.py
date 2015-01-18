@@ -1,5 +1,6 @@
 import urlparse
 import os
+import re
 from upseto import run
 
 
@@ -8,6 +9,13 @@ def originURLBasename(originURL):
     if originURLBasename.endswith(".git"):
         originURLBasename = originURLBasename[: - len(".git")]  # pragma: no cover
     return originURLBasename
+
+
+def normalizeOriginURL(originURL):
+    originURL = re.sub(r'^git@(\S+?):(.*)$', r'https://\1/\2', originURL)
+    if originURL.endswith(".git"):
+        originURL = originURL[: - len(".git")]  # pragma: no cover
+    return originURL
 
 
 class GitWrapper:
@@ -31,10 +39,13 @@ class GitWrapper:
         if not os.path.isdir(directory):
             raise Exception("Directory '%s' does not exist" % directory)
         existing = cls(directory)
-        if existing.originURL() != originURL:
+        if normalizeOriginURL(existing.originURL()) != normalizeOriginURL(originURL):
             raise Exception(
-                "Existing directory '%s' origin URL is '%s' which is not the expected '%s'" % (
-                    directory, existing.originURL(), originURL))
+                "Existing directory '%s' origin URL is '%s' which is not the expected '%s' "
+                "(normalized '%s' and '%s')" % (
+                    directory, existing.originURL(), originURL,
+                    normalizeOriginURL(existing.originURL()),
+                    normalizeOriginURL(originURL)))
         return existing
 
     @classmethod
