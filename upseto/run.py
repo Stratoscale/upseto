@@ -1,5 +1,4 @@
 import subprocess
-import logging
 
 
 def run(command, cwd=None):
@@ -8,5 +7,5 @@ def run(command, cwd=None):
             command, cwd=cwd, stderr=subprocess.STDOUT,
             stdin=open("/dev/null"), close_fds=True)
     except subprocess.CalledProcessError as e:
-        logging.error("Failed command '%s' in '%s' output:\n%s" % (command, cwd, e.output))
-        raise
+        raise subprocess.CalledProcessError("Failed command '%s': %s in '%s' output:\n%s" % (
+            command, e, cwd, e.output))

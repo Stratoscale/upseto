@@ -2,6 +2,7 @@ import urlparse
 import os
 import re
 from upseto import run
+from upseto import gitconfigparser
 
 
 def originURLBasename(originURL):
@@ -64,7 +65,7 @@ class GitWrapper:
 
     def originURL(self):
         if self._cachedOriginURL is None:
-            url = self._run(["git", "config", "--local", "remote.origin.url"]).strip()
+            url = gitconfigparser.GitConfigParser(self._directory).originURL()
             parts = list(urlparse.urlparse(url))
             netloc = parts[1]
             if '@' in netloc:
