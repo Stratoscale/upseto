@@ -3,6 +3,7 @@ import unittest
 import gitwrapper
 import upsetowrapper
 import upseto.manifest
+import upseto.gitwrapper
 import os
 import shutil
 import tempfile
@@ -367,6 +368,18 @@ class Test(unittest.TestCase):
         upsetowrapper.run(case.localRecursiveProject, "fulfillRequirements")
         self.assertEquals(case.localClone1.hash(), correct)
         upsetowrapper.run(case.localRecursiveProject, "checkRequirements")
+
+    def test_normalizeURL(self):
+        self.assertEquals(upseto.gitwrapper.normalizeOriginURL('https://github.com/Strato/project.git'),
+                          "https://github.com/Strato/project")
+        self.assertEquals(upseto.gitwrapper.normalizeOriginURL('https://github.com/Strato/project'),
+                          "https://github.com/Strato/project")
+        self.assertEquals(upseto.gitwrapper.normalizeOriginURL('git@github.com:Strato/project'),
+                          "https://github.com/Strato/project")
+        self.assertEquals(upseto.gitwrapper.normalizeOriginURL('git@github.com:Strato/project.git'),
+                          "https://github.com/Strato/project")
+        self.assertEquals(upseto.gitwrapper.normalizeOriginURL('file:///a/directory/with/repo'),
+                          "file:///a/directory/with/repo")
 
 
 # temporary deps that resolve paradoxes - for clashes in recursive deps that are not direct deps
