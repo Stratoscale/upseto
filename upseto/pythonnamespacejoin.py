@@ -18,13 +18,40 @@ def extendPath():
     sys.path.extend(finder.found())
 
 
+class FindManifestFile:
+    _projectDir = None
+    _baseDir = None
+
+    def __init__(self, invokingModulePath):
+        if FindManifestFile._projectDir is not None:
+            return
+        self._findManifestFile(invokingModulePath)
+
+    def _findManifestFile(self, invokingModulePath):
+        dirs = os.path.dirname(os.path.abspath(invokingModulePath)).split(os.path.sep)
+        while len(dirs) > 2:
+            asString = os.path.sep.join(dirs)
+            if manifest.Manifest.exists(asString):
+                basedir = os.path.sep.join(dirs[: -1])
+                FindManifestFile._projectDir = asString
+                FindManifestFile._baseDir = basedir
+                return
+            dirs.pop()
+
+    def projectDir(self):
+        return self._projectDir
+
+    def baseDir(self):
+        return self._baseDir
+
+
 class Joiner:
     def __init__(self, invokingModulePath, invokingModuleName):
         self._lookingFor = os.path.join(*(invokingModuleName.split('.') + ['__init__.py']))
         self._found = []
-        self._projectDir = None
-        self._baseDir = None
-        self._findManifestFile(invokingModulePath)
+        findManifestFile = FindManifestFile(invokingModulePath)
+        self._projectDir = findManifestFile.projectDir()
+        self._baseDir = findManifestFile.baseDir()
         if self._projectDir is None:
             return
         self._traverse = traverse.Traverse(self._baseDir)
@@ -34,17 +61,6 @@ class Joiner:
 
     def found(self):
         return self._found
-
-    def _findManifestFile(self, invokingModulePath):
-        dirs = os.path.dirname(os.path.abspath(invokingModulePath)).split(os.path.sep)
-        while len(dirs) > 2:
-            asString = os.path.sep.join(dirs)
-            if manifest.Manifest.exists(asString):
-                basedir = os.path.sep.join(dirs[: -1])
-                self._projectDir = asString
-                self._baseDir = basedir
-                return
-            dirs.pop()
 
     def _lookInProjectDir(self, projectDir):
         candidate1 = os.path.join(projectDir, self._lookingFor)
