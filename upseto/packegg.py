@@ -90,7 +90,7 @@ class PackEgg:
             return False
         if self._args.takeEverything:
             return True
-        if 'site-packages' in module.__file__:
+        if 'site-packages' in module.__file__ or 'dist-packages' in module.__file__:
             for sitePackage in self._args.takeSitePackage:
                 path = os.path.join('site-packages', * sitePackage.split("."))
                 if path in module.__file__:
