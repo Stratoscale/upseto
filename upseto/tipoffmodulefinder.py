@@ -20,10 +20,10 @@ class TipOffModuleFinder:
         self._visited = set()
         for path in sys.path:
             if not path.startswith("/usr/lib"):
-                self._todo.append((path, ""))
+                self._todo.append((path, []))
         while not len(self._todo) == 0:
             path, relativeModule = self._todo.pop(0)
-            self._scan(path, [])
+            self._scan(path, relativeModule)
 
     def _scan(self, path, relativeModule):
         if relativeModule and str(relativeModule) in self._visited:
@@ -42,8 +42,11 @@ class TipOffModuleFinder:
                 if not fileIsUpsetoPythonNamespaceJoinInit(fullPath):
                     continue
                 submodule = root[len(path) + len(os.path.sep):].split(os.path.sep)
-                absoluteModuleName = ".".join(relativeModule + submodule)
+                absoluteModuleNameSplit = relativeModule
+                if submodule != ['']:
+                    absoluteModuleNameSplit = submodule
+                absoluteModuleName = ".".join(absoluteModuleNameSplit)
                 joinPaths = pythonnamespacejoin.Joiner(fullPath, absoluteModuleName).found()
                 for joinPath in joinPaths:
                     modulefinder.AddPackagePath(absoluteModuleName, joinPath)
-                    self._todo.append((joinPath, absoluteModuleName))
+                    self._todo.append((joinPath, absoluteModuleNameSplit))
