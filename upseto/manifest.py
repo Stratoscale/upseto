@@ -2,6 +2,11 @@ import yaml
 import os
 from upseto import gitwrapper
 
+try:
+    _Loader = yaml.CLoader
+except:
+    _Loader = yaml.Loader
+
 
 class Manifest:
     _FILENAME = "upseto.manifest"
@@ -62,7 +67,7 @@ class Manifest:
     def fromDir(cls, directory):
         filename = os.path.join(directory, cls._FILENAME)
         with open(filename) as f:
-            data = yaml.load(f.read())
+            data = yaml.load(f.read(), Loader=_Loader)
         return cls(data, cls._originURL(directory))
 
     @classmethod
