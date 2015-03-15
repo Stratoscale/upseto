@@ -1,11 +1,11 @@
 from upseto import gitwrapper
-from upseto import traverse
+from upseto import traversenodouble
 import sys
 
 
 class RecursiveGit:
     def __init__(self, baseDir=".."):
-        self._traverse = traverse.Traverse(baseDir)
+        self._traverse = traversenodouble.TraverseNoDouble(baseDir)
 
     def run(self, mani, commandLine):
         git = gitwrapper.GitWrapper(".")
