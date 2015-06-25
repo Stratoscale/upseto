@@ -13,6 +13,11 @@ DIRECTORIES_CONTAINING_PYTHON_STANDARD_LIBRARIES = [
     "/usr/local/lib64/",
 ]
 
+ADD_SITE_PACKAGES_TO_PACK_SCRIPT_TEMPLATE = """import os
+import site
+__path__.extend([os.path.join(site, '%(moduleName)s') for site in site.getsitepackages()])
+"""
+
 
 class PackEgg:
     def __init__(self, args):
@@ -68,6 +73,9 @@ class PackEgg:
             "--joinPythonNamespaces", action="store_true",
             help="collect files from joined namespaces. Only works when "
             "invoked from an upseto project directory")
+        parser.add_argument(
+            "--joinWithSitePackages", nargs="*", default=[],
+            help="Continue join those packages with site package")
 
     def _pack(self, zip, script, deps):
         moduleFinder = modulefinder.ModuleFinder()
@@ -80,7 +88,11 @@ class PackEgg:
             relpath = self._pathRelativeToPythonPath(module.__file__)
             if relpath not in zip.namelist():
                 if tipoffmodulefinder.fileIsUpsetoPythonNamespaceJoinInit(module.__file__):
-                    zip.writestr(relpath, "")
+                    if module.__name__ in self._args.joinWithSitePackages:
+                        zip.writestr(relpath, ADD_SITE_PACKAGES_TO_PACK_SCRIPT_TEMPLATE %
+                                     dict(moduleName=module.__name__))
+                    else:
+                        zip.writestr(relpath, "")
                 else:
                     zip.write(module.__file__, relpath)
                 deps.add(module.__file__)
