@@ -21,4 +21,7 @@ setup(
         "Development Status :: 4 - Beta",
         "Topic :: Utilities",
     ],
+    install_requires=[
+        "PyYAML==3.11"
+    ]
 )
