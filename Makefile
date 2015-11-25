@@ -3,6 +3,8 @@ all: unittest check_convention
 clean:
 	rm -fr build dist upseto.egg-info
 
+SITE = python -c "import sys; print sys.path[-1]"
+
 UNITTESTS=$(shell find tests -name 'test*.py' | sed 's@/@.@g' | sed 's/\(.*\)\.py/\1/' | sort)
 COVERED_FILES=upseto/*.py
 unittest:
@@ -17,17 +19,13 @@ check_convention:
 
 uninstall:
 	-yes | sudo pip uninstall upseto
-	-sudo rm /usr/lib/python2.7/site-packages/upseto.pth /usr/lib/python2.7/dist-packages/upseto.pth
+	-sudo rm $(SITE)/upseto.pth
 	-sudo rm /etc/bash_completion.d/upseto.sh
-	sudo rm /usr/bin/upseto
+	-sudo rm /usr/bin/upseto
 
-install:
-	-yes | sudo pip uninstall upseto
+
+install: uninstall
 	python setup.py build
 	python setup.py bdist
 	python setup.py bdist_egg
-	sudo python setup.py install
-	if [ -d /usr/lib/python2.7/site-packages ]; then sudo cp upseto.pth /usr/lib/python2.7/site-packages/upseto.pth; else sudo cp upseto.pth /usr/lib/python2.7/dist-packages/upseto.pth; fi
-	sudo cp upseto.sh /usr/bin/upseto
-	sudo chmod 755 /usr/bin/upseto
-	sudo cp bash.completion.sh /etc/bash_completion.d/upseto.sh
+	sudo pip install --upgrade ./

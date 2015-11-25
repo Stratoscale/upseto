@@ -1,0 +1,2 @@
+include conf/upseto.pth
+include conf/bash_completion.d/upseto.sh

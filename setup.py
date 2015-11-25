@@ -1,9 +1,15 @@
 import os
+import sys
 from setuptools import setup
+
+
+SITE_PACKAGES = [path for path in sys.path if '-packages' in path][-1]
+BASH_COMPLETION = os.path.expanduser('~/.bash_completion') if os.getuid() != 0 else '/etc/bash_completion.d'
 
 
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
+
 
 setup(
     name="upseto",
@@ -23,5 +29,10 @@ setup(
     ],
     install_requires=[
         "PyYAML==3.11"
-    ]
+    ],
+    data_files=[
+        (SITE_PACKAGES, ['conf/upseto.pth']),
+        (BASH_COMPLETION, ['conf/bash_completion.d/upseto.sh']),
+    ],
+    scripts=['sh/upseto'],
 )
