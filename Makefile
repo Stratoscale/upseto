@@ -16,13 +16,7 @@ check_convention:
 	pep8 . --max-line-length=109
 
 uninstall:
-	-yes | sudo pip uninstall upseto
-	-sudo rm /usr/lib/python2.7/site-packages/upseto.pth /usr/lib/python2.7/dist-packages/upseto.pth
-	-sudo rm /etc/bash_completion.d/upseto.sh
-	-sudo rm /usr/bin/upseto /usr/local/bin/upseto
+	-sudo pip uninstall -y upseto
 
 install: uninstall
-	python setup.py build
-	python setup.py bdist
-	python setup.py bdist_egg
-	sudo python setup.py install
+	sudo pip install .

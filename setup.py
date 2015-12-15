@@ -1,17 +1,15 @@
 import os
 from setuptools import setup
 
-SITE_PACKAGES = '/usr/lib/python2.7/site-packages'
-DIST_PACKAGES = '/usr/lib/python2.7/dist-packages'
+from distutils import sysconfig
+site_packages_path = sysconfig.get_python_lib()
 
-
-data_files = []
+data_files = [(site_packages_path, ["conf/upseto.pth"])]
 
 # add in case we are running as root
 if os.geteuid() == 0:
     data_files += [
         ('/etc/bash_completion.d', ['conf/bash_completion.d/upseto.sh']),
-        (SITE_PACKAGES if os.path.exists(SITE_PACKAGES) else DIST_PACKAGES, ['conf/upseto.pth']),
     ]
 
 
