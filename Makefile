@@ -7,7 +7,7 @@ UNITTESTS=$(shell find tests -name 'test*.py' | sed 's@/@.@g' | sed 's/\(.*\)\.p
 COVERED_FILES=upseto/*.py
 unittest:
 	rm -f .coverage*
-	PYTHONPATH=`pwd` COVERAGE_FILE=`pwd`/.coverage python -m coverage run --parallel-mode --append -m unittest $(UNITTESTS)
+	PYTHONPATH=`pwd` COVERAGE_FILE=`pwd`/.coverage python -m coverage run --append -m unittest $(UNITTESTS)
 	python -m coverage combine
 	python -m coverage report --show-missing --rcfile=coverage.config --fail-under=86 --include='$(COVERED_FILES)'
 	PYTHONPATH=`pwd` python tests/verifyloggingnotusedinjoinnamespaces.py
