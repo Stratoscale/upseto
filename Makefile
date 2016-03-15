@@ -9,7 +9,7 @@ unittest:
 	rm -f .coverage*
 	PYTHONPATH=`pwd` COVERAGE_FILE=`pwd`/.coverage python -m coverage run --append -m unittest $(UNITTESTS)
 	python -m coverage combine
-	python -m coverage report --show-missing --rcfile=coverage.config --fail-under=86 --include='$(COVERED_FILES)'
+	python -m coverage report --show-missing --rcfile=coverage.config --fail-under=76 --include='$(COVERED_FILES)'
 	PYTHONPATH=`pwd` python tests/verifyloggingnotusedinjoinnamespaces.py
 
 check_convention:
