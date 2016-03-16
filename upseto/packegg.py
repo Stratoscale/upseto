@@ -91,7 +91,7 @@ class PackEgg:
             help="Continue join those packages with site package")
 
     def _pack(self, zip, script, deps):
-        moduleFinder = modulefinder.ModuleFinder()
+        moduleFinder = modulefinder.ModuleFinder(excludes=self._args.excludeModule)
         moduleFinder.run_script(script)
         deps.add(script)
         zip.write(script, self._pathRelativeToPythonPath(script))
