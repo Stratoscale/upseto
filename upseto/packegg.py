@@ -4,6 +4,7 @@ import zipfile
 import sys
 import os
 import glob
+import subprocess
 from upseto import tipoffmodulefinder
 
 DIRECTORIES_CONTAINING_PYTHON_STANDARD_LIBRARIES = [
@@ -14,10 +15,21 @@ DIRECTORIES_CONTAINING_PYTHON_STANDARD_LIBRARIES = [
     sys.prefix
 ]
 
+
+def addPyEnvToExcludedDirPaths():
+    try:
+        pyEnvPath = subprocess.check_output(["pyenv", "virtualenv-prefix"]).strip()
+        DIRECTORIES_CONTAINING_PYTHON_STANDARD_LIBRARIES.append(pyEnvPath)
+    except:
+        pass
+
 ADD_SITE_PACKAGES_TO_PACK_SCRIPT_TEMPLATE = """import os
 import site
 __path__.extend([os.path.join(site, '%(moduleName)s') for site in site.getsitepackages()])
 """
+
+
+addPyEnvToExcludedDirPaths()
 
 
 class PackEgg:
