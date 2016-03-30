@@ -11,6 +11,7 @@ DIRECTORIES_CONTAINING_PYTHON_STANDARD_LIBRARIES = [
     "/usr/lib64/",
     "/usr/local/lib/",
     "/usr/local/lib64/",
+    sys.prefix
 ]
 
 ADD_SITE_PACKAGES_TO_PACK_SCRIPT_TEMPLATE = """import os
