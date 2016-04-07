@@ -57,6 +57,18 @@ class GitWrapper:
         clone.checkout('master')
         return clone
 
+    @classmethod
+    def getGit(cls, originURL, baseDirectory):
+        try:
+            git = GitWrapper.existing(originURL, baseDirectory)
+            return "Found", git
+        except:
+            git = GitWrapper.clone(originURL, baseDirectory)
+            return "Cloned", git
+
+    def isBranch(self, hash):
+        return self.hash(hash) != hash
+
     def directory(self):
         return self._directory
 

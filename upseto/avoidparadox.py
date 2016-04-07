@@ -3,10 +3,11 @@ from upseto import dirtyparadoxresolution
 
 
 class AvoidParadox:
-    def __init__(self):
+    def __init__(self, baseDir=".."):
         self._allHashes = {}
         self._allBasenames = {}
         self._graph = {}
+        self._baseDir = baseDir
         self._dirtyParadoxResolution = dirtyparadoxresolution.DirtyParadoxResolution()
 
     def process(self, manifest):
@@ -23,12 +24,16 @@ class AvoidParadox:
         if requirement['originURL'] not in self._allHashes:
             self._allHashes[requirement['originURL']] = dict(hash=dirtyHash, manifest=mani)
         else:
-            if dirtyHash != self._allHashes[requirement['originURL']]['hash']:
-                raise Exception(
-                    "Requirement hash paradox: '%s' need hash '%s' by '%s' and hash '%s' by '%s'" % (
-                        requirement['originURL'], dirtyHash, mani.originURL(),
-                        self._allHashes[requirement['originURL']]['hash'],
-                        self._allHashes[requirement['originURL']]['manifest'].originURL()))
+            existance, git = gitwrapper.GitWrapper.getGit(requirement['originURL'], self._baseDir)
+            if git.hash(dirtyHash) != git.hash(self._allHashes[requirement['originURL']]['hash']):
+                raise Exception("Requirement hash paradox: '%s' need hash '%s' ('%s') by '%s'"
+                                "and hash '%s' ('%s') by '%s'" % (
+                                    requirement['originURL'],
+                                    dirtyHash, git.hash(dirtyHash),
+                                    mani.originURL(),
+                                    self._allHashes[requirement['originURL']]['hash'],
+                                    git.hash(self._allHashes[requirement['originURL']]['hash']),
+                                    self._allHashes[requirement['originURL']]['manifest'].originURL()))
 
     def _testBasenameConsistency(self, originURL):
         basename = gitwrapper.originURLBasename(originURL)
