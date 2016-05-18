@@ -18,7 +18,7 @@ def read(fname):
 
 setup(
     name="upseto",
-    version="1.0",
+    version="1.1",
     author="Shlomo Matichin",
     author_email="shlomi@stratoscale.com",
     description=(
