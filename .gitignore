@@ -6,3 +6,4 @@ upseto.egg-info
 .coverage*
 .venv
 .idea
+.eggs
