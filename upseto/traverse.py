@@ -5,7 +5,7 @@ import collections
 
 
 Dependency = collections.namedtuple(
-    "Dependency", "requirement projectDir manifest parentOriginURL basename")
+    "Dependency", "requirement projectDir manifest parentOriginURL basename level")
 
 
 class Traverse:
@@ -13,7 +13,7 @@ class Traverse:
         self._baseDir = baseDir
         self._visitedOriginURLs = set()
 
-    def traverse(self, mani):
+    def traverse(self, mani, level=0):
         """
         Recursivly visit all dependencies, once. Yields a 'Dependency'
         named tuple for each dependency visited (root not included).
@@ -33,12 +33,13 @@ class Traverse:
                 projectDir=projectDir,
                 manifest=submanifest,
                 parentOriginURL=mani.originURL(),
-                basename=basename)
+                basename=basename,
+                level=level)
             yield dependency
             # refresh manifest in case it was changed by caller (as in
             # FulfillRequirements which checks out the code)
             refreshedSubmanifest = manifest.Manifest.fromDir(projectDir) if \
                 manifest.Manifest.exists(projectDir) else None
             if refreshedSubmanifest is not None:
-                for x in self.traverse(refreshedSubmanifest):
+                for x in self.traverse(refreshedSubmanifest, level=level+1):
                     yield x
