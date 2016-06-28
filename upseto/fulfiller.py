@@ -1,3 +1,4 @@
+import os
 import logging
 from upseto import gitwrapper
 from upseto import avoidparadox
@@ -19,15 +20,22 @@ class Fulfiller:
         self._dirtyParadoxResolution.process(mani)
         self._avoidParadox.process(mani)
         for dependency in self._traverse.traverse(mani):
-            hashWithDirt = self._dirtyParadoxResolution.hashOverride(
-                dependency.requirement, dependency.parentOriginURL)
             existance, git = self._existingOrClone(dependency.requirement['originURL'])
-            revision = self._checkoutExactHash(git, hashWithDirt)
             if manifest.Manifest.exists(git.directory()):
                 mani = manifest.Manifest.fromDir(git.directory())
                 self._dirtyParadoxResolution.process(mani)
                 self._avoidParadox.process(mani)
-            logging.info("%s '%s' %s" % (existance, git.directory(), revision))
+            self._printDependency(dependency, existance, git)
+
+    def _printDependency(self, dependency, existance, git):
+        levelIndentation = "    " * dependency.level
+        if levelIndentation:
+            levelIndentation += "|-- "
+        hashWithDirt = self._dirtyParadoxResolution.hashOverride(
+            dependency.requirement, dependency.parentOriginURL)
+        revision = self._checkoutExactHash(git, hashWithDirt)
+        logging.info("%s%s: %s, %s" % (levelIndentation, os.path.basename(git.directory()), existance,
+                                       revision))
 
     def _existingOrClone(self, originURL):
         try:
