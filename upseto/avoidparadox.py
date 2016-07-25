@@ -2,6 +2,10 @@ from upseto import gitwrapper
 from upseto import dirtyparadoxresolution
 
 
+class RequirementHashConflict(Exception):
+    pass
+
+
 class AvoidParadox:
     def __init__(self):
         self._allHashes = {}
@@ -24,8 +28,9 @@ class AvoidParadox:
             self._allHashes[requirement['originURL']] = dict(hash=dirtyHash, manifest=mani)
         else:
             if dirtyHash != self._allHashes[requirement['originURL']]['hash']:
-                raise Exception(
-                    "Requirement hash paradox: '%s' need hash '%s' by '%s' and hash '%s' by '%s'" % (
+                raise RequirementHashConflict(
+                    "Requirement hash conflict: '%s' is needed with hash '%s' by '%s' and with hash '%s' "
+                    "by '%s'" % (
                         requirement['originURL'], dirtyHash, mani.originURL(),
                         self._allHashes[requirement['originURL']]['hash'],
                         self._allHashes[requirement['originURL']]['manifest'].originURL()))

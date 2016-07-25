@@ -4,6 +4,7 @@ from upseto import gitwrapper
 from upseto import fulfiller
 from upseto import checkfulfilled
 from upseto import recursivegit
+from upseto import avoidparadox
 import os
 import logging
 import sys
@@ -91,7 +92,11 @@ elif args.cmd == "delRequirement":
     logging.info("Removed the origin URL '%s' from requirements", originURL)
 elif args.cmd == "fulfillRequirements":
     mani = manifest.Manifest.fromLocalDir()
-    ff = fulfiller.Fulfiller(mani, baseDir)
+    try:
+        ff = fulfiller.Fulfiller(mani, baseDir)
+    except avoidparadox.RequirementHashConflict as ex:
+        print ex.message
+        sys.exit(1)
     logging.info("Requirements Fulfilled")
 elif args.cmd == "checkRequirements":
     if args.allowNoManifest:
