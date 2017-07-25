@@ -16,6 +16,12 @@ DIRECTORIES_CONTAINING_PYTHON_STANDARD_LIBRARIES = [
 ]
 
 
+DEFAULT_MODULES_BLACKLIST = [
+        "pexpect.async",  # Syntax error (python3 code)
+        "gevent._socket3"  # Syntax error (python3 code)
+]
+
+
 def addPyEnvToExcludedDirPaths():
     try:
         pyEnvPath = subprocess.check_output(["pyenv", "virtualenv-prefix"]).strip()
@@ -66,7 +72,7 @@ class PackEgg:
         parser.add_argument(
             "--directory", nargs='*', default=[], help="Directories to pack")
         parser.add_argument("--excludeModule", help="Dotted name of the module to exclude",
-                            nargs="*", default=[])
+                            nargs="*", default=DEFAULT_MODULES_BLACKLIST)
         parser.add_argument("--output", required=True, help="output egg file")
         parser.add_argument("--createDeps", help="create .dep file")
         parser.add_argument(
