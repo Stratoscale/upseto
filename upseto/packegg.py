@@ -18,7 +18,8 @@ DIRECTORIES_CONTAINING_PYTHON_STANDARD_LIBRARIES = [
 
 DEFAULT_MODULES_BLACKLIST = [
         "pexpect.async",  # Syntax error (python3 code)
-        "gevent._socket3"  # Syntax error (python3 code)
+        "gevent._socket3",  # Syntax error (python3 code)
+        "jinja2.asyncsupport",  # Syntax error (python3 code)
 ]
 
 
