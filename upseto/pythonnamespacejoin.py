@@ -4,15 +4,21 @@ from upseto import manifest
 from upseto import traverse
 
 
+def check_for_env_variable():
+    if set(('UPSETO_JOIN_PYTHON_NAMESPACES', 'UPSETOJOINPYTHONNAMESPACES')).intersection(set(os.environ)):
+        return True
+    return False
+
+
 def join(moduleGlobals):
-    if 'UPSETO_JOIN_PYTHON_NAMESPACES' not in os.environ:
+    if not check_for_env_variable():
         return []
     joiner = Joiner(moduleGlobals['__file__'], moduleGlobals['__name__'])
     return joiner.found()
 
 
 def extendPath():
-    if 'UPSETO_JOIN_PYTHON_NAMESPACES' not in os.environ:
+    if not check_for_env_variable():
         return
     finder = PathFinder()
     sys.path.extend(finder.found())
