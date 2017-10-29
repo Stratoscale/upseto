@@ -33,7 +33,7 @@ setup(
         "Topic :: Utilities",
     ],
     install_requires=[
-        "PyYAML==3.11"
+        "PyYAML==3.12"
     ],
     data_files=data_files,
     scripts=['sh/upseto'],
