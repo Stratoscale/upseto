@@ -1,0 +1,8 @@
+version: 2
+
+services:
+
+  upseto:
+      pips:
+      - dist/upseto-*.tar.gz
+

@@ -1,7 +1,11 @@
-all: unittest check_convention
+# all: unittest check_convention
+all: clean build
+
+build:
+	python setup.py sdist
 
 clean:
-	rm -fr build dist upseto.egg-info
+	rm -fr build dist upseto.egg-info .coverage*
 
 UNITTESTS=$(shell find tests -name 'test*.py' | sed 's@/@.@g' | sed 's/\(.*\)\.py/\1/' | sort)
 COVERED_FILES=upseto/*.py
@@ -20,3 +24,5 @@ uninstall:
 
 install: uninstall
 	sudo pip install .
+
+.PHONY: build
