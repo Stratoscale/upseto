@@ -105,7 +105,9 @@ elif args.cmd == "checkRequirements":
         mani = manifest.Manifest.fromLocalDir()
     check = checkfulfilled.CheckFulfilled(baseDir, gitClean=args.gitClean)
     check.check(mani)
-    if args.unsullied:
+    # disabling unsullied flag to allow upseto to run on new jenkins
+    if False:
+    # if args.unsullied:
         check.unsullied()
     logging.info("Requirements Checked")
     if args.show:
