@@ -1,13 +1,9 @@
 import argparse
-from upseto import manifest
-from upseto import gitwrapper
-from upseto import fulfiller
-from upseto import checkfulfilled
-from upseto import recursivegit
-from upseto import avoidparadox
-import os
 import logging
+import os
 import sys
+
+from upseto import avoidparadox, checkfulfilled, fulfiller, gitwrapper, manifest, recursivegit
 
 logging.basicConfig(level=logging.INFO)
 
