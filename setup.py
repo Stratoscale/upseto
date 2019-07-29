@@ -18,7 +18,7 @@ def read(fname):
 
 setup(
     name="upseto",
-    version="1.2.2",
+    version="1.2.3",
     author="Shlomo Matichin",
     author_email="shlomi@stratoscale.com",
     description=(
@@ -33,7 +33,7 @@ setup(
         "Topic :: Utilities",
     ],
     install_requires=[
-        "PyYAML==3.11"
+        "PyYAML>=3.11"
     ],
     data_files=data_files,
     scripts=['sh/upseto'],
