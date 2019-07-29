@@ -4,6 +4,7 @@ from upseto import graph
 from upseto import traverse
 from upseto import dirtyparadoxresolution
 import os
+import re
 
 
 class CheckFulfilled:
@@ -15,6 +16,7 @@ class CheckFulfilled:
         self._traverse = traverse.Traverse(baseDir)
         self._graph = graph.Graph()
         self._dirtyParadoxResolution = dirtyparadoxresolution.DirtyParadoxResolution()
+        self._sulliedExcludeDirectoriesPattern = re.compile(r'.*(@tmp){1}')
 
     def check(self, mani):
         if self._gitClean:
@@ -48,11 +50,19 @@ class CheckFulfilled:
 
     def unsullied(self):
         directoriesInWorkspace = os.listdir(self._baseDir)
-        sullied = set(directoriesInWorkspace) - self._basenames
+        sullied = self.excludeDirectories(directoriesInWorkspace) - self._basenames
         if len(sullied) > 0:
             raise Exception(
                 "Workspace is sullied: following projects exist that are not "
                 "referred by upseto dependencies: %s" % sullied)
+
+    def excludeDirectories(self, directoriesInWorkspace):
+        directoriesInWorkspaceSet = set(directoriesInWorkspace)
+        for directory in set(directoriesInWorkspace):
+            excludeDirectory = self._sulliedExcludeDirectoriesPattern.match(directory)
+            if excludeDirectory:
+                directoriesInWorkspaceSet = directoriesInWorkspaceSet - set([excludeDirectory.string])
+        return directoriesInWorkspaceSet
 
     def renderAsTreeText(self):
         return self._graph.renderAsTreeText()
