@@ -20,6 +20,8 @@ DEFAULT_MODULES_BLACKLIST = [
         "pexpect.async",  # Syntax error (python3 code)
         "gevent._socket3",  # Syntax error (python3 code)
         "jinja2.asyncsupport",  # Syntax error (python3 code)
+        "importlib_resources._py3",  # Syntax error (python3 code)
+        "attr._next_gen", # Syntax error (python3 code)
 ]
 
 
