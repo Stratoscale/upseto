@@ -1,4 +1,4 @@
-import subprocess
+import subprocess32
 import tempfile
 import shutil
 import os
@@ -35,9 +35,9 @@ def localClonesDir():
 
 def _run(command, cwd, printOutput=True):
     try:
-        return subprocess.check_output(
-            command, shell=True, cwd=cwd, stderr=subprocess.STDOUT, close_fds=True)
-    except subprocess.CalledProcessError as e:
+        return subprocess32.check_output(
+            command, shell=True, cwd=cwd, stderr=subprocess32.STDOUT, close_fds=True)
+    except subprocess32.CalledProcessError as e:
         if printOutput:
             print e.output
         raise

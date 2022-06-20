@@ -4,7 +4,7 @@ import zipfile
 import sys
 import os
 import glob
-import subprocess
+import subprocess32
 from upseto import tipoffmodulefinder
 
 DIRECTORIES_CONTAINING_PYTHON_STANDARD_LIBRARIES = [
@@ -27,7 +27,7 @@ DEFAULT_MODULES_BLACKLIST = [
 
 def addPyEnvToExcludedDirPaths():
     try:
-        pyEnvPath = subprocess.check_output(["pyenv", "virtualenv-prefix"]).strip()
+        pyEnvPath = subprocess32.check_output(["pyenv", "virtualenv-prefix"]).strip()
         DIRECTORIES_CONTAINING_PYTHON_STANDARD_LIBRARIES.append(pyEnvPath)
     except:
         pass

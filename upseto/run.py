@@ -1,4 +1,4 @@
-import subprocess
+import subprocess32
 
 
 class RunError(Exception):
@@ -13,8 +13,8 @@ class RunError(Exception):
 
 def run(command, cwd=None):
     try:
-        return subprocess.check_output(
-            command, cwd=cwd, stderr=subprocess.STDOUT,
+        return subprocess32.check_output(
+            command, cwd=cwd, stderr=subprocess32.STDOUT,
             stdin=open("/dev/null"), close_fds=True)
-    except subprocess.CalledProcessError as e:
+    except subprocess32.CalledProcessError as e:
         raise RunError(e, cwd)

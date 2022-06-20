@@ -1,13 +1,13 @@
-import subprocess
+import subprocess32
 import os
 
 
 def run(where, arguments):
     try:
-        output = subprocess.check_output(
+        output = subprocess32.check_output(
             "python -m coverage run --parallel-mode -m upseto.main " + arguments, cwd=where.directory(),
-            shell=True, stderr=subprocess.STDOUT, close_fds=True)
-    except subprocess.CalledProcessError as e:
+            shell=True, stderr=subprocess32.STDOUT, close_fds=True)
+    except subprocess32.CalledProcessError as e:
         print e.output
         raise
     return output
@@ -15,10 +15,10 @@ def run(where, arguments):
 
 def runShouldFail(where, arguments, partOfErrorMessage):
     try:
-        output = subprocess.check_output(
+        output = subprocess32.check_output(
             "python -m coverage run --parallel-mode -m upseto.main " + arguments, cwd=where.directory(),
-            shell=True, stderr=subprocess.STDOUT, close_fds=True)
-    except subprocess.CalledProcessError as e:
+            shell=True, stderr=subprocess32.STDOUT, close_fds=True)
+    except subprocess32.CalledProcessError as e:
         if partOfErrorMessage in e.output.lower():
             return
         else:
@@ -32,11 +32,11 @@ def runShouldFail(where, arguments, partOfErrorMessage):
 
 def packEgg(where, arguments, pythonPath):
     try:
-        output = subprocess.check_output(
+        output = subprocess32.check_output(
             "python -m coverage run --parallel-mode -m upseto.packegg " + arguments,
-            cwd=where.directory(), shell=True, stderr=subprocess.STDOUT, close_fds=True,
+            cwd=where.directory(), shell=True, stderr=subprocess32.STDOUT, close_fds=True,
             env=dict(os.environ, PYTHONPATH=pythonPath + ":" + os.environ['PYTHONPATH']))
-    except subprocess.CalledProcessError as e:
+    except subprocess32.CalledProcessError as e:
         print e.output
         raise
     return output
@@ -44,10 +44,10 @@ def packEgg(where, arguments, pythonPath):
 
 def runWhatever(where, commandLine):
     try:
-        output = subprocess.check_output(
+        output = subprocess32.check_output(
             commandLine,
-            cwd=where, shell=True, stderr=subprocess.STDOUT, close_fds=True)
-    except subprocess.CalledProcessError as e:
+            cwd=where, shell=True, stderr=subprocess32.STDOUT, close_fds=True)
+    except subprocess32.CalledProcessError as e:
         print e.output
         raise
     return output
