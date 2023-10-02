@@ -5,7 +5,7 @@ import os
 def run(where, arguments):
     try:
         output = subprocess.check_output(
-            "python -m coverage run --parallel-mode -m upseto.main " + arguments, cwd=where.directory(),
+            "python2 -m coverage run --parallel-mode -m upseto.main " + arguments, cwd=where.directory(),
             shell=True, stderr=subprocess.STDOUT, close_fds=True)
     except subprocess.CalledProcessError as e:
         print e.output
@@ -16,7 +16,7 @@ def run(where, arguments):
 def runShouldFail(where, arguments, partOfErrorMessage):
     try:
         output = subprocess.check_output(
-            "python -m coverage run --parallel-mode -m upseto.main " + arguments, cwd=where.directory(),
+            "python2 -m coverage run --parallel-mode -m upseto.main " + arguments, cwd=where.directory(),
             shell=True, stderr=subprocess.STDOUT, close_fds=True)
     except subprocess.CalledProcessError as e:
         if partOfErrorMessage in e.output.lower():
@@ -33,7 +33,7 @@ def runShouldFail(where, arguments, partOfErrorMessage):
 def packEgg(where, arguments, pythonPath):
     try:
         output = subprocess.check_output(
-            "python -m coverage run --parallel-mode -m upseto.packegg " + arguments,
+            "python2 -m coverage run --parallel-mode -m upseto.packegg " + arguments,
             cwd=where.directory(), shell=True, stderr=subprocess.STDOUT, close_fds=True,
             env=dict(os.environ, PYTHONPATH=pythonPath + ":" + os.environ['PYTHONPATH']))
     except subprocess.CalledProcessError as e:
