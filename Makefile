@@ -7,16 +7,16 @@ UNITTESTS=$(shell find tests -name 'test*.py' | sed 's@/@.@g' | sed 's/\(.*\)\.p
 COVERED_FILES=upseto/*.py
 unittest:
 	rm -f .coverage*
-	PYTHONPATH=`pwd` COVERAGE_FILE=`pwd`/.coverage python -m coverage run --append -m unittest $(UNITTESTS)
-	python -m coverage combine
-	python -m coverage report --show-missing --rcfile=coverage.config --fail-under=75 --include='$(COVERED_FILES)'
-	PYTHONPATH=`pwd` python tests/verifyloggingnotusedinjoinnamespaces.py
+	PYTHONPATH=`pwd` COVERAGE_FILE=`pwd`/.coverage python2 -m coverage run --append -m unittest $(UNITTESTS)
+	python2 -m coverage combine
+	python2 -m coverage report --show-missing --rcfile=coverage.config --fail-under=75 --include='$(COVERED_FILES)'
+	PYTHONPATH=`pwd` python2 tests/verifyloggingnotusedinjoinnamespaces.py
 
 check_convention:
 	pep8 . --max-line-length=109
 
 uninstall:
-	-sudo pip uninstall -y upseto
+	-sudo python2 -m pip uninstall -y upseto
 
 install: uninstall
-	sudo pip install .
+	sudo python2 -m pip install .

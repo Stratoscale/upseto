@@ -206,7 +206,7 @@ class Test(unittest.TestCase):
     def test_pythonNamespaceJoining(self):
         case = self.pythonNamespacesTestcase()
         case.localRequiringProject.run(
-            'UPSETO_JOIN_PYTHON_NAMESPACES=yes PYTHONPATH=py:$PYTHONPATH python test.py')
+            'UPSETO_JOIN_PYTHON_NAMESPACES=yes PYTHONPATH=py:$PYTHONPATH python2 test.py')
 
     def test_recursiveGitInvocation(self):
         case = self.SimpleManifest_OneProjectDependsOnTwoOthers(self)
@@ -228,7 +228,7 @@ class Test(unittest.TestCase):
             case.localRequiringProject,
             "--joinPythonNamespaces --entryPoint=test.py --output=%s" % temp.name,
             "py:%s/py" % case.localClone1.directory())
-        upsetowrapper.runWhatever('/', "PYTHONPATH=%s python -m test" % temp.name)
+        upsetowrapper.runWhatever('/', "PYTHONPATH=%s python2 -m test" % temp.name)
 
     def test_packegg_replacesInitFileWithEmptyFile(self):
         case = self.pythonNamespacesTestcase()
